@@ -4,7 +4,7 @@
 
 ## English
 
-Infrastructure foundation: an empty Agno/AgentOS runtime, PostgreSQL 17 and pgvector running locally in Docker. No career role is predefined. This stage includes no agents, RAG, embeddings, AI provider or API key.
+Local infrastructure and configurable profiles: an Agno/AgentOS runtime with no registered agents, PostgreSQL 17 and pgvector running in Docker. No career role is predefined. This stage includes no agents, RAG, embeddings, AI provider or API key.
 
 ### Verified environment
 
@@ -14,6 +14,8 @@ Infrastructure foundation: an empty Agno/AgentOS runtime, PostgreSQL 17 and pgve
 - `docker compose config --quiet` passed.
 - Validation completed: the API and database were healthy, pgvector was available, and a database record survived a restart of both containers, as verified by `verify.ps1`.
 - Result: `PASS: API, PostgreSQL, pgvector and persistence after restart.`
+- Profile validation completed on October 7, 2026: all 10 PostgreSQL tests passed, including preference history, owner scoping, invalid input rejection and concurrent edits. A synthetic profile and its two preference versions survived a restart of the database and API containers. The disposable test database was removed.
+- Result: `PASS: profile API, version history, owner isolation and restart persistence.`
 
 ### Start and verify
 
@@ -28,6 +30,14 @@ Open Docker Desktop, wait for “Engine running”, and run the following in Pow
 ```
 
 The test builds and starts the containers, checks the API and pgvector, writes a unique identifier to the database, restarts both containers, and confirms that the identifier was preserved. It generates `verification.json` only after success. The containers remain running.
+
+To install or upgrade the profile API and run its PostgreSQL tests, also execute:
+
+```powershell
+.\verify-profiles.ps1
+```
+
+This applies migrations without removing the persistent volume, uses a disposable test database and restarts the containers belonging to this project. Owner IDs delimit operations but do not provide authentication. See [profile setup and examples](docs/profile-api.md).
 
 Local API: http://127.0.0.1:8000/docs. Database readiness check: http://127.0.0.1:8000/health/ready.
 
@@ -52,7 +62,7 @@ Official references consulted: https://docs.agno.com/agent-os/introduction, http
 
 ### Scope and next steps
 
-This V1 verifies local infrastructure and persistence after restart. It does not yet analyze job openings or recommend careers. No role is predefined in the core; future career options should be evaluated using market evidence.
+This V1 includes local infrastructure and configurable profiles with preference history. Infrastructure and profile tests passed in the local installation. Run `verify-profiles.ps1` to apply profile migrations and validate each new or existing installation. See [Profile API setup and examples](docs/profile-api.md). It does not yet analyze job openings or recommend careers. No role is predefined in the core; future career options should be evaluated using market evidence.
 
 Agents and RAG are reserved for a later phase. Suggestions and bug reports can be shared through GitHub Issues.
 
@@ -60,7 +70,7 @@ Agents and RAG are reserved for a later phase. Suggestions and bug reports can b
 
 ## Português
 
-Base de infraestrutura: Agno/AgentOS vazio, PostgreSQL 17 e pgvector no Docker local. Nenhum cargo foi fixado. Não há agentes, RAG, embeddings, provedor de IA ou chave de API nesta etapa.
+Infraestrutura local e perfis configuráveis: Agno/AgentOS sem agentes registrados, PostgreSQL 17 e pgvector no Docker. Nenhum cargo foi fixado. Não há agentes, RAG, embeddings, provedor de IA ou chave de API nesta etapa.
 
 ### Ambiente verificado
 
@@ -70,6 +80,8 @@ Base de infraestrutura: Agno/AgentOS vazio, PostgreSQL 17 e pgvector no Docker l
 - `docker compose config --quiet` passou.
 - Validação concluída: API e banco saudáveis, pgvector disponível e registro preservado após reiniciar os dois containers, conforme a execução de `verify.ps1`.
 - Resultado: `PASS: API, PostgreSQL, pgvector and persistence after restart.`
+- Perfis validados em 7 de outubro de 2026: os 10 testes no PostgreSQL passaram, incluindo histórico de preferências, delimitação por proprietário, rejeição de entradas inválidas e edições simultâneas. Um perfil fictício e suas duas versões de preferências sobreviveram ao restart do banco e da API. O banco descartável de testes foi removido.
+- Resultado: `PASS: profile API, version history, owner isolation and restart persistence.`
 
 ### Iniciar e comprovar
 
@@ -84,6 +96,14 @@ Abra o Docker Desktop, aguarde “Engine running” e execute no PowerShell na p
 ```
 
 O teste constrói e inicia os containers, consulta a API e pgvector, grava um identificador único no banco, reinicia os dois containers e confirma que o identificador foi preservado. Só gera `verification.json` após sucesso. Os containers ficam rodando.
+
+Para instalar ou atualizar a API de perfis e executar seus testes no PostgreSQL, execute também:
+
+```powershell
+.\verify-profiles.ps1
+```
+
+O script aplica migrations sem remover o volume persistente, usa um banco descartável de testes e reinicia os containers deste projeto. Os IDs de proprietários delimitam operações, mas não oferecem autenticação. Veja [instalação e exemplos de perfis](docs/profile-api.md).
 
 API local: http://127.0.0.1:8000/docs. Verificação do banco: http://127.0.0.1:8000/health/ready.
 
@@ -108,6 +128,6 @@ Referências oficiais consultadas: https://docs.agno.com/agent-os/introduction, 
 
 ### Escopo e próximos passos
 
-Esta V1 comprova a infraestrutura local e a persistência após restart. Ainda não analisa vagas nem recomenda carreiras. Não há cargo predefinido no core; futuras opções deverão ser avaliadas com evidências de mercado.
+Esta V1 inclui infraestrutura local e perfis configuráveis com histórico de preferências. Os testes de infraestrutura e perfis passaram na instalação local. Execute `verify-profiles.ps1` para aplicar as migrations de perfis e validar cada instalação nova ou existente. Veja [instalação e exemplos da API de perfis](docs/profile-api.md). Ainda não analisa vagas nem recomenda carreiras. Não há cargo predefinido no core; futuras opções deverão ser avaliadas com evidências de mercado.
 
 Agentes e RAG ficam para uma fase posterior. Sugestões e relatos de problemas podem ser compartilhados pelas Issues no GitHub.

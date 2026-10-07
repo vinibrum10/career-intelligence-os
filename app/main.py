@@ -1,11 +1,9 @@
-import os
-
 from agno.db.postgres import PostgresDb
 from agno.os import AgentOS
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
+from app.database import database_url, engine
+from app.profiles.router import router as profile_router
 
-database_url = os.environ["DATABASE_URL"]
-engine = create_engine(database_url, pool_pre_ping=True)
 runtime = AgentOS(
     id="career-intelligence-os",
     name="Career Intelligence OS",
@@ -16,6 +14,7 @@ runtime = AgentOS(
     workflows=[],
 )
 app = runtime.get_app()
+app.include_router(profile_router)
 
 
 @app.get("/health/ready")
