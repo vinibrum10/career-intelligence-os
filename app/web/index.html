@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Perfis · Career Intelligence OS</title>
+  <link rel="stylesheet" href="/profiles/assets/styles.css">
+  <script src="/profiles/assets/profiles.js" type="module"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="/profiles"><span class="mark">C</span> Career Intelligence OS</a><span class="local"><span></span> No seu computador</span></header>
+  <main>
+    <div class="intro"><div><p class="eyebrow">SEU PONTO DE PARTIDA</p><h1>Carreiras mudam.<br>Seu perfil também.</h1><p>Organize suas preferências e explore diferentes caminhos.<br>Cada atualização guarda uma nova versão.</p></div><div class="stage">01<span>Perfil e preferências</span><small>Análise de vagas em uma próxima etapa</small></div></div>
+    <div class="notice">Uso local, sem login. O identificador seleciona os seus registros; não funciona como senha. Os perfis ficam no banco local.</div>
+    <p id="status" role="status" aria-live="polite" hidden></p>
+    <div class="workspace">
+      <aside class="card sidebar">
+        <p class="eyebrow">ESPAÇO DE PERFIS</p><h2>Quem está planejando?</h2>
+        <form id="connect-form"><label for="owner-id">Identificador do proprietário</label><input id="owner-id" placeholder="Cole o identificador salvo" required autocomplete="off"><button type="submit" class="secondary">Abrir meus perfis</button></form>
+        <details id="owner-create"><summary>Primeira vez? Criar um espaço</summary><form id="owner-form"><label for="owner-label">Nome do espaço (opcional)</label><input id="owner-label" maxlength="200" placeholder="Como você quer chamar este espaço?"><button type="submit" class="secondary">Criar espaço</button></form></details>
+        <p class="hint">Guarde o identificador. Este navegador lembra apenas o último espaço aberto.</p>
+        <div class="sidebar-title"><h3>Seus perfis</h3><button id="new-profile" type="button" class="text-button" disabled>+ Novo</button></div>
+        <div id="profile-list"><p class="empty">Abra ou crie um espaço para começar.</p></div>
+        <button id="more-profiles" class="secondary" type="button" hidden>Carregar mais perfis</button>
+      </aside>
+      <section class="card editor">
+        <div id="welcome"><span class="welcome-icon">↗</span><h2>Mais de um caminho é possível</h2><p>Você pode ter um perfil para uma busca local e outro para oportunidades internacionais. Nenhum cargo ou país vem definido.</p><p class="hint">Comece abrindo seu espaço na coluna ao lado.</p></div>
+        <form id="profile-form" hidden novalidate>
+          <div class="editor-heading"><div><p class="eyebrow">PERFIL CONFIGURÁVEL</p><h2 id="editor-title">Novo perfil</h2></div><span id="version" class="badge">Ainda não salvo</span></div>
+          <label for="profile-label">Nome do perfil</label><input id="profile-label" maxlength="200" placeholder="Dê um nome ao seu cenário de busca" required>
+          <section class="form-section"><h3>Onde você mora hoje</h3><p class="hint">Informe apenas o que souber. País: código de duas letras, como BR ou PT.</p><div class="grid" id="current-location"></div></section>
+          <details class="form-section"><summary>Interesses e país do empregador</summary><div id="interests"></div></details>
+          <section class="form-section"><div class="section-heading"><div><h3>Caminhos de busca</h3><p class="hint">Cada caminho é uma alternativa. Você pode combinar, por exemplo, remoto no país atual e mudança para outro país.</p></div><button type="button" id="add-pathway" class="secondary">+ Adicionar caminho</button></div><div id="pathways"></div></section>
+          <p class="hint">Campos vazios permanecem não informados. Salvar um perfil não confirma elegibilidade para uma vaga.</p>
+          <div class="savebar"><span id="save-note">Alterações ainda não salvas</span><button type="button" id="reload-profile" class="secondary" hidden>Recarregar versão salva</button><button type="submit" id="save-profile">Salvar perfil</button></div>
+        </form>
+      </section>
+    </div>
+    <section id="history-panel" class="card history" hidden><div class="section-heading"><div><p class="eyebrow">SUAS MUDANÇAS</p><h2>Histórico de preferências</h2></div><button type="button" id="refresh-history" class="secondary">Atualizar histórico</button></div><div id="history-list"></div><button id="more-history" type="button" class="secondary" hidden>Carregar mais versões</button></section>
+    <footer>Career Intelligence OS · Seus dados, seus caminhos.<a href="/docs" target="_blank" rel="noopener">Documentação da API ↗</a></footer>
+  </main>
+</body>
+</html>

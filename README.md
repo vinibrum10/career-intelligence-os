@@ -4,6 +4,10 @@
 
 ## English
 
+### Profile screen
+
+Manage profiles at `http://127.0.0.1:8000/profiles` using forms and preference history. After the profile migration has been applied, run `docker compose up -d --build --wait api` to load the screen. See [screen setup and usage](docs/profile-ui.md). The screen has no authentication and is intended for localhost only.
+
 Local infrastructure and configurable profiles: an Agno/AgentOS runtime with no registered agents, PostgreSQL 17 and pgvector running in Docker. No career role is predefined. This stage includes no agents, RAG, embeddings, AI provider or API key.
 
 ### Verified environment
@@ -69,6 +73,10 @@ Agents and RAG are reserved for a later phase. Suggestions and bug reports can b
 ---
 
 ## Português
+
+### Tela de perfis
+
+Cadastre e edite perfis em `http://127.0.0.1:8000/profiles`, com formulário e histórico de preferências. Com a migration de perfis aplicada, execute `docker compose up -d --build --wait api` para carregar a tela. Veja [instalação e uso da tela](docs/profile-ui.md). A tela não tem autenticação e destina-se ao uso em localhost.
 
 Infraestrutura local e perfis configuráveis: Agno/AgentOS sem agentes registrados, PostgreSQL 17 e pgvector no Docker. Nenhum cargo foi fixado. Não há agentes, RAG, embeddings, provedor de IA ou chave de API nesta etapa.
 
