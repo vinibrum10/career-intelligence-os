@@ -1,0 +1,6 @@
+.git
+.env
+.venv
+.docker-local
+verification.json
+__pycache__
