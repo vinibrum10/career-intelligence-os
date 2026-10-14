@@ -20,3 +20,18 @@ def profiles_styles():
 @router.get("/profiles/assets/profiles.js")
 def profiles_script():
     return FileResponse(ASSETS / "profiles.js", media_type="text/javascript", headers={"Cache-Control": "no-store"})
+
+
+@router.get("/jobs")
+def jobs_page():
+    return FileResponse(ASSETS / "jobs.html", headers={"Cache-Control": "no-store"})
+
+
+@router.get("/jobs/assets/jobs.js")
+def jobs_script():
+    return FileResponse(ASSETS / "jobs.js", media_type="text/javascript", headers={"Cache-Control": "no-store"})
+
+
+@router.get("/jobs/assets/jobs-comparison.js")
+def jobs_comparison_script():
+    return FileResponse(ASSETS / "jobs-comparison.js", media_type="text/javascript", headers={"Cache-Control": "no-store"})

@@ -3,6 +3,7 @@ import os
 from alembic import context
 from sqlalchemy import create_engine, pool
 from app.profiles.models import Base
+from app.jobs import models as job_models
 
 
 def include_name(name, type_, parent_names):
