@@ -1,6 +1,11 @@
 $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
 
+# A report is valid only for the latest attempt, including setup failures.
+if (Test-Path -LiteralPath 'verification.json') {
+    Remove-Item -LiteralPath 'verification.json'
+}
+
 function Invoke-Compose {
     & docker compose @args
     if ($LASTEXITCODE -ne 0) { throw "Docker Compose failed: $args" }
@@ -25,6 +30,6 @@ $result = [ordered]@{
     persisted_probe_id = $probeId
     persistence_passed = $true
 }
-$result | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath verification.json -Encoding UTF8
 Invoke-Compose ps
+$result | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath verification.json -Encoding UTF8
 Write-Host 'PASS: API, PostgreSQL, pgvector and persistence after restart.'
