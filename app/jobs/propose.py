@@ -28,6 +28,10 @@ Rules:
    distinctive enough to appear only once. Never translate, correct or paraphrase it.
 3. "requirement": "required" for must-haves, "preferred" for nice-to-haves, "informational" otherwise.
 4. One claim per fact. Alternatives such as "A, B or similar" are ONE skill_group.
+5. "value" must be exactly one of the English codes listed below, even when the vacancy is written in another language
+   (e.g. "Modalidade: remoto" -> "remote"; "híbrido" -> "hybrid"; "presencial" -> "on_site"; "CLT" -> "employee";
+   "tempo integral" -> "full_time"). Never copy the vacancy's wording into "value"; only authorization_restriction and
+   skill_group hold free text taken from the vacancy.
 
 field_key and value:
 - work_arrangement: "remote" | "hybrid" | "on_site"

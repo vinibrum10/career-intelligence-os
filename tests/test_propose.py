@@ -68,6 +68,7 @@ class AskModelTest(unittest.TestCase):
         self.assertEqual(sent["body"]["options"]["temperature"], 0)
         self.assertEqual([m["role"] for m in sent["body"]["messages"]], ["system", "user"])
         self.assertIn(TEXT, sent["body"]["messages"][1]["content"])
+        self.assertIn("even when the vacancy is written in another language", sent["body"]["messages"][0]["content"])
 
     def test_unreachable_server_and_unusable_answers_become_502(self):
         for failure in (URLError("refused"), TimeoutError("slow")):
