@@ -9,6 +9,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.database import get_session
 from app.profiles.schemas import Contract, Country, Currency, WorkArrangement
+from app.profiles.models import ProfileVersion
+from app.profiles.service import require_profile
+from .eligibility import Comparison, compare
 from .models import ClaimEvidence, ExtractionRun, JobClaim
 from .service import read_snapshot
 
@@ -185,3 +188,14 @@ def list_extractions(owner_id: UUID, source_id: UUID, version: int = Path(ge=1),
 @router.get("/{extraction_id}", response_model=ExtractionRead)
 def read_extraction(owner_id: UUID, source_id: UUID, extraction_id: UUID, version: int = Path(ge=1), session: Session = Depends(get_session)):
     return read(session, find(session, owner_id, source_id, version, extraction_id))
+
+@router.get("/{extraction_id}/comparison", response_model=Comparison)
+def compare_extraction(owner_id: UUID, source_id: UUID, extraction_id: UUID, profile_id: UUID, profile_version: int = Query(ge=1),
+                       version: int = Path(ge=1), session: Session = Depends(get_session)):
+    extraction = read(session, find(session, owner_id, source_id, version, extraction_id))
+    require_profile(session, owner_id, profile_id)
+    saved = session.scalar(select(ProfileVersion).where(ProfileVersion.owner_id == owner_id,
+        ProfileVersion.profile_id == profile_id, ProfileVersion.version == profile_version))
+    if saved is None:
+        raise HTTPException(404, "Profile version not found")
+    return compare(saved.preferences_json, [claim.model_dump() for claim in extraction.claims])
