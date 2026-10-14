@@ -26,7 +26,7 @@ env = dict(os.environ, DATABASE_URL=url.render_as_string(hide_password=False), P
 subprocess.run(sys.argv[2:], env=env, check=True)
 '@
     Invoke-Compose run --rm --no-deps api python -c $testPrefix $testDatabase alembic upgrade head
-    Invoke-Compose run --rm --no-deps api python -c $testPrefix $testDatabase python -m unittest tests.test_profiles tests.test_jobs tests.test_extractions tests.test_eligibility -v
+    Invoke-Compose run --rm --no-deps api python -c $testPrefix $testDatabase python -m unittest tests.test_profiles tests.test_jobs tests.test_extractions tests.test_eligibility tests.test_propose -v
     Invoke-Compose run --rm --no-deps api python -c $testPrefix $testDatabase python -m tests.persistence_probe seed
     Invoke-Compose run --rm --no-deps api python -c $testPrefix $testDatabase python -m tests.job_persistence_probe seed
     Invoke-Compose run --rm --no-deps api python -c $testPrefix $testDatabase python -m tests.extraction_persistence_probe seed
@@ -37,7 +37,7 @@ subprocess.run(sys.argv[2:], env=env, check=True)
     Invoke-Compose run --rm --no-deps api python -c $testPrefix $testDatabase python -m tests.extraction_persistence_probe check
     $ready = Invoke-RestMethod 'http://127.0.0.1:8000/health/ready'
     if ($ready.status -ne 'ready') { throw 'API readiness failed' }
-    Write-Host 'PASS: profiles, job captures, extracted claims, eligibility rules, owner isolation, history and restart persistence.'
+    Write-Host 'PASS: profiles, job captures, extracted claims, eligibility rules, draft proposals, owner isolation, history and restart persistence.'
 } finally {
     # Drop only the generated, disposable test database; preserve the real database.
     if ($databaseCreated -and $testDatabase -match '^career_profile_test_[0-9a-f]{32}$') {
