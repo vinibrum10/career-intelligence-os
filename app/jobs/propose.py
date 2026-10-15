@@ -25,23 +25,27 @@ Rules:
 1. Use only what the text says. Never guess or infer. When the text does not state a field, return
    {"field_key": "<field>", "knowledge": "not_provided"} with no other keys. Do this once for every field below except skill_group.
 2. For "explicit", "excerpt" is copied character for character from the vacancy: one short phrase that states the fact and is
-   distinctive enough to appear only once. Never translate, correct or paraphrase it.
+   distinctive enough to appear only once. Never translate, correct or paraphrase it. It must stay inside a single line of the
+   vacancy: never join lines and never include a line break.
 3. "requirement": "required" for must-haves, "preferred" for nice-to-haves, "informational" otherwise.
-4. One claim per fact. Alternatives such as "A, B or similar" are ONE skill_group.
+4. One claim per fact. Alternatives such as "A, B or similar" are ONE skill_group; each line of a list is its own claim with
+   its own excerpt taken from that line only.
 5. "value" must be exactly one of the English codes listed below, even when the vacancy is written in another language
    (e.g. "Modalidade: remoto" -> "remote"; "híbrido" -> "hybrid"; "presencial" -> "on_site"; "CLT" -> "employee";
    "tempo integral" -> "full_time"). Never copy the vacancy's wording into "value"; only authorization_restriction and
    skill_group hold free text taken from the vacancy.
+6. When the vacancy offers more than one option for the same field (e.g. "PJ ou CLT"), return one claim per option, each with its
+   own excerpt. Never use "other" to combine options.
 
 field_key and value:
 - work_arrangement: "remote" | "hybrid" | "on_site"
 - work_countries: {"countries": ["BR"]} (ISO 3166-1 alpha-2 codes of the countries where the work may be done)
-- sponsorship: "offered" | "not_offered" (visa or relocation sponsorship)
+- sponsorship: "offered" | "not_offered" (visa or relocation sponsorship; "we do not sponsor visas" -> "not_offered")
 - authorization_restriction: short text, only if the vacancy restricts applicants by work authorization or residence
 - contract: "employee" | "contractor" | "self_employed" | "other"
 - working_time: "full_time" | "part_time" | "other"
 - compensation: {"minimum": 8000, "maximum": 10000, "currency": "BRL", "currency_basis": "advertised", "period": "hour" | "month" | "year", "amount_basis": "gross" | "net" | "unknown"}
-  (omit minimum or maximum when absent; plain numbers; currency_basis is "advertised" unless the text says in which currency payment is actually made)
+  (amount_basis is "unknown" unless the vacancy literally says gross or net: bruto, líquido, gross, net; omit minimum or maximum when absent; plain numbers; currency_basis is "advertised" unless the text says in which currency payment is actually made)
 - skill_group: {"alternatives": ["TARA", "PSS/E"]} (skills, tools or qualifications the vacancy asks for)"""
 
 
@@ -83,8 +87,14 @@ def claim(text, item):
     if found != 1:
         raise ValueError("Excerpt not found in the saved text" if found == 0 else "Excerpt appears more than once")
     start = text.index(excerpt)
+    value = item.get("value")
+    if isinstance(value, str) and value.lstrip()[:1] in ("{", "["):  # the model sometimes sends an object as a JSON string
+        try:
+            value = json.loads(value)
+        except ValueError:
+            pass
     return ClaimIn(field_key=item.get("field_key"), knowledge="explicit", requirement=item.get("requirement"),
-                   value=item.get("value"), evidence=[EvidenceIn(start_char=start, end_char=start + len(excerpt), excerpt=excerpt)])
+                   value=value, evidence=[EvidenceIn(start_char=start, end_char=start + len(excerpt), excerpt=excerpt)])
 
 
 def build(text, items):

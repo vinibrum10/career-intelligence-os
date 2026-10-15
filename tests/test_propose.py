@@ -53,6 +53,14 @@ class BuildTest(unittest.TestCase):
                                      item("contract", "CLT", "employee")])
         self.assertEqual([(c.field_key, c.knowledge) for c in built["claims"]], [("sponsorship", "not_provided"), ("contract", "explicit")])
 
+    def test_a_value_sent_as_a_json_string_is_parsed_but_plain_text_is_not(self):
+        body = '{"minimum": 1, "maximum": 2, "currency": "BRL", "currency_basis": "advertised", "period": "month", "amount_basis": "unknown"}'
+        built = propose.build(TEXT, [item("compensation", "R$", body), item("skill_group", "CLT", "{broken")])
+        self.assertEqual(built["claims"], [])  # "R$" appears twice; the broken string stays a string and fails validation
+        built = propose.build(TEXT, [item("compensation", "Salary up to USD 90k.", body.replace("BRL", "USD"))])
+        self.assertEqual(built["claims"][0].value["currency"], "USD")
+        self.assertEqual(len(built["discarded"]), 0)
+
 class AskModelTest(unittest.TestCase):
     def test_sends_only_the_vacancy_to_the_configured_model(self):
         sent = {}
@@ -68,7 +76,10 @@ class AskModelTest(unittest.TestCase):
         self.assertEqual(sent["body"]["options"]["temperature"], 0)
         self.assertEqual([m["role"] for m in sent["body"]["messages"]], ["system", "user"])
         self.assertIn(TEXT, sent["body"]["messages"][1]["content"])
-        self.assertIn("even when the vacancy is written in another language", sent["body"]["messages"][0]["content"])
+        system = sent["body"]["messages"][0]["content"]
+        for rule in ("even when the vacancy is written in another language", "never include a line break",
+                     "one claim per option", 'is "unknown" unless the vacancy literally says gross or net'):
+            self.assertIn(rule, system)
 
     def test_unreachable_server_and_unusable_answers_become_502(self):
         for failure in (URLError("refused"), TimeoutError("slow")):
