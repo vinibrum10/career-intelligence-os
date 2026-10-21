@@ -34,15 +34,18 @@ Rules:
    (e.g. "Modalidade: remoto" -> "remote"; "híbrido" -> "hybrid"; "presencial" -> "on_site"; "CLT" -> "employee";
    "tempo integral" -> "full_time"). Never copy the vacancy's wording into "value"; only authorization_restriction and
    skill_group hold free text taken from the vacancy.
-6. When the vacancy offers more than one option for the same field (e.g. "PJ ou CLT"), return one claim per option, each with its
-   own excerpt. Never use "other" to combine options.
+6. For contract options explicitly offered together (e.g. "PJ ou CLT"), return ONE contract claim with
+   value {"alternatives": ["contractor", "employee"]} and an excerpt containing the whole offer of alternatives.
+   Separate contradictory statements stay separate claims. Never group a contradiction as alternatives.
+   For other fields, return one claim per option, each with its own excerpt. Never use "other" to combine options.
 
 field_key and value:
 - work_arrangement: "remote" | "hybrid" | "on_site"
 - work_countries: {"countries": ["BR"]} (ISO 3166-1 alpha-2 codes of the countries where the work may be done)
+- employer_countries: {"countries": ["BR"]} (only an explicitly stated country of the employer; never infer it from the work location, language or currency)
 - sponsorship: "offered" | "not_offered" (visa or relocation sponsorship; "we do not sponsor visas" -> "not_offered")
 - authorization_restriction: short text, only if the vacancy restricts applicants by work authorization or residence
-- contract: "employee" | "contractor" | "self_employed" | "other"
+- contract: "employee" | "contractor" | "self_employed" | "other", or {"alternatives": ["employee", "contractor"]} for an explicit choice
 - working_time: "full_time" | "part_time" | "other"
 - compensation: {"minimum": 8000, "maximum": 10000, "currency": "BRL", "currency_basis": "advertised", "period": "hour" | "month" | "year", "amount_basis": "gross" | "net" | "unknown"}
   (amount_basis is "unknown" unless the vacancy literally says gross or net: bruto, líquido, gross, net; omit minimum or maximum when absent; plain numbers; currency_basis is "advertised" unless the text says in which currency payment is actually made)

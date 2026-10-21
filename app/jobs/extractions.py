@@ -37,6 +37,17 @@ class SkillGroup(Strict):
             raise ValueError("Duplicate alternatives")
         return self
 
+class ContractOptions(Strict):
+    """A single reviewed fact explicitly offering alternative contract types."""
+    alternatives: list[Contract] = Field(min_length=2, max_length=4)
+
+    @model_validator(mode="after")
+    def unique(self):
+        if len(set(self.alternatives)) != len(self.alternatives):
+            raise ValueError("Duplicate contract alternatives")
+        self.alternatives = sorted(self.alternatives)
+        return self
+
 class Compensation(Strict):
     minimum: Decimal | None = Field(default=None, ge=0, allow_inf_nan=False)
     maximum: Decimal | None = Field(default=None, ge=0, allow_inf_nan=False)
@@ -55,14 +66,15 @@ class Compensation(Strict):
 VALUE_TYPES = {
     "work_arrangement": TypeAdapter(WorkArrangement),
     "work_countries": TypeAdapter(WorkCountries),
+    "employer_countries": TypeAdapter(WorkCountries),
     "sponsorship": TypeAdapter(Literal["offered", "not_offered"]),
     "authorization_restriction": TypeAdapter(Short),
-    "contract": TypeAdapter(Contract),
+    "contract": TypeAdapter(Contract | ContractOptions),
     "working_time": TypeAdapter(Literal["full_time", "part_time", "other"]),
     "compensation": TypeAdapter(Compensation),
     "skill_group": TypeAdapter(SkillGroup),
 }
-FieldKey = Literal["work_arrangement", "work_countries", "sponsorship", "authorization_restriction",
+FieldKey = Literal["work_arrangement", "work_countries", "employer_countries", "sponsorship", "authorization_restriction",
                    "contract", "working_time", "compensation", "skill_group"]
 assert set(get_args(FieldKey)) == set(VALUE_TYPES)
 

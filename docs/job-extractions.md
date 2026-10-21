@@ -13,17 +13,25 @@ Everything here works on a saved capture (`/career/owners/{owner_id}/jobs/{sourc
 
 ### Claims
 
-A claim is one fact about the vacancy: `field_key` (`work_arrangement`, `work_countries`, `sponsorship`, `authorization_restriction`, `contract`, `working_time`, `compensation`, `skill_group`), `knowledge` and a normalised `value`.
+A claim is one fact about the vacancy: `field_key` (`work_arrangement`, `work_countries`, `employer_countries`, `sponsorship`, `authorization_restriction`, `contract`, `working_time`, `compensation`, `skill_group`), `knowledge` and a normalised `value`.
 
 - `explicit`: needs at least one evidence excerpt that equals `original_text[start_char:end_char]` (zero-based Unicode characters, end exclusive).
 - `inferred`: needs a `basis`. The comparison never treats it as proof.
 - `not_provided`: records that the field was inspected and the text says nothing. No value, evidence, requirement or basis.
 
-Runs are append-only: a correction is a new run, never an edit. The database repeats these rules in CHECK constraints.
+Runs are append-only: a correction is a new run, never an edit. The API validates typed values and exact evidence slices; the database additionally enforces ownership, knowledge/value consistency, inference basis and evidence ranges.
 
-### Eligibility comparison (`rules-v1`)
+`employer_countries` uses `{"countries": ["BR"]}` and means the explicitly stated country of the employer, not the work location. `contract` still accepts a single code such as `employee`. A single fact explicitly offering options, such as “CLT ou PJ”, uses `{"alternatives": ["employee", "contractor"]}` with evidence of the complete choice. Separate conflicting claims remain separate and unresolved. Existing saved facts are not rewritten; record a new reviewed extraction to group an old pair of claims as alternatives. These additions use the existing JSON storage and require no new migration beyond `0003_extractions`.
+
+### Eligibility comparison (`rules-v2`)
 
 Only `required` profile criteria decide. `preferred` ones are reported but never eliminate. Pathways are alternatives: any compatible pathway makes the result compatible; all incompatible makes it incompatible; anything else needs confirmation. Only explicit, non-conflicting claims prove a fact; inferred, missing or conflicting facts ask for confirmation. A remote job without a `work_countries` claim is never assumed worldwide. Compensation is compared only when currency, period, amount basis and currency basis match (no conversions). Technical fit is always `not_assessed`.
+
+The global employer-country criterion is evaluated in every pathway. A required employer country without evidence needs confirmation; an explicit mismatch is incompatible. Preferred employer countries never eliminate. An explicit contract-options fact matches when at least one offered option is accepted; separate contradictory facts still need confirmation.
+
+If a pathway contains authorization declarations, the rules evaluate them against explicit work countries. Required pathway countries narrow the alternatives; preferred countries do not. Each eligible country is evaluated separately: a self-declared authorization supports that route, a declaration requiring sponsorship depends on explicit sponsorship evidence, and unknown/missing declarations need confirmation. Any supported country suffices; all incompatible countries make this authorization check incompatible. Missing/conflicting work countries remain unresolved. An explicit lack of sponsorship conflicts with a relevant declaration requiring it. A profile that declares sponsorship required for that country but also configures only `not_needed` cannot become compatible just because sponsorship is offered: it needs profile review. These checks use self-declarations and are not legal verification.
+
+This remains a partial comparison: city/region, relocation conditions, travel, career interests and skill evidence are not evaluated. No authorization declaration means this additional check is absent, not that permission to work has been verified. Free-text authorization restrictions in a vacancy still require review. Comparisons are read-only calculations against the requested saved versions and are not stored as historical results.
 
 ### AI draft
 
@@ -47,5 +55,9 @@ The model is adopted only after a check on real vacancies that you label by hand
 Tudo aqui trabalha sobre uma captura salva e usa o prefixo `…/extractions`. Nada é salvo automaticamente: uma pessoa revisa e salva. Os IDs de proprietário delimitam registros, mas não são autenticação; mantenha o serviço em localhost.
 
 - **Claims:** cada fato da vaga tem `field_key`, `knowledge` (`explicit`, `inferred`, `not_provided`) e valor normalizado. Um claim `explicit` exige trecho idêntico ao texto salvo, com posições em caracteres Unicode. Claims são acrescentados em novas execuções, nunca editados.
-- **Comparação (`rules-v1`):** só critérios `required` do perfil decidem; `preferred` são apenas informados. Caminhos do perfil são alternativas. Só fatos explícitos e sem conflito provam algo; o resto pede confirmação. Compensação só é comparada com mesma moeda, período e base, sem conversão. Aderência técnica fica sempre `not_assessed`.
+- **Comparação (`rules-v2`):** só critérios `required` do perfil decidem; `preferred` são apenas informados. Caminhos do perfil são alternativas. Só fatos explícitos e sem conflito provam algo; o resto pede confirmação. Compensação só é comparada com mesma moeda, período e base, sem conversão. Aderência técnica fica sempre `not_assessed`.
+- **País da empresa:** `employer_countries` usa `{"countries": ["BR"]}` e é independente do local de trabalho. O critério global vale em todos os caminhos. Se obrigatório, ausência de evidência pede confirmação e conflito explícito é incompatível; se preferencial, não elimina.
+- **Alternativas de contrato:** um fato com `{"alternatives": ["employee", "contractor"]}` e evidência de “CLT ou PJ” permite qualquer opção aceita pelo perfil. Fatos separados com valores divergentes continuam como conflito. Registros antigos não são reescritos; corrija a interpretação com uma nova extração revisada. Não há nova migration: os dados usam o JSON existente desde `0003_extractions`.
+- **Declarações de autorização:** quando presentes no caminho, são cruzadas com os países de trabalho explícitos. Países obrigatórios do caminho restringem as alternativas; preferenciais não. Autorização declarada pode sustentar um caminho; necessidade declarada de patrocínio exige evidência de oferta. Ausência explícita de patrocínio contradiz essa necessidade. País ou declaração ausente, desconhecido ou conflitante pede confirmação. Um país compatível basta; todos incompatíveis tornam essa verificação incompatível. Declarar necessidade e configurar apenas `not_needed` exige revisão do perfil, mesmo se a vaga oferecer patrocínio. Não é verificação jurídica; sem declarações cadastradas, esse teste adicional não é feito.
+- **Limites:** cidade/região, condições de mudança, viagens, interesses e evidências técnicas ainda não são avaliados. Restrições de autorização em texto livre continuam exigindo revisão. O resultado é calculado com as versões solicitadas, sem salvar um histórico de comparações.
 - **Rascunho por IA:** `POST …/extractions/draft` envia **somente o texto da vaga** (nunca o perfil) ao Ollama local e devolve claims candidatos. O código localiza o trecho no texto salvo e descarta candidatos com trecho inexistente ou repetido, valor fora do vocabulário, campo desconhecido ou conhecimento `inferred`, listando o motivo. O rascunho não grava nada; revise e envie `extractor` e `claims` ao POST de extrações. Variáveis opcionais do serviço `api`: `OLLAMA_URL` e `OLLAMA_MODEL`. O modelo só é adotado depois de avaliar vagas reais rotuladas por você; o `verify-jobs.ps1` testa o rascunho com respostas simuladas e não chama o Ollama.

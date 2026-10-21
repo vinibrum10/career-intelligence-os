@@ -5,7 +5,7 @@ from typing import Literal
 from uuid import UUID
 from pydantic import BaseModel
 
-RULES_VERSION = "rules-v1"
+RULES_VERSION = "rules-v2"
 Result = Literal["compatible", "incompatible", "needs_confirmation"]
 OK, NO, ASK = "compatible", "incompatible", "needs_confirmation"
 
@@ -61,6 +61,38 @@ def sponsorship(choice, claims):
         return ASK, why, ids
     return (OK, "sponsorship offered", ids) if value == "offered" else (NO, "sponsorship explicitly not offered", ids)
 
+def authorization(path, claims):
+    """Evaluate self-declarations only for countries supported by this job and pathway.
+
+    Several permitted countries are alternatives. This is not legal verification.
+    """
+    countries, ids, why = fact(claims, "work_countries")
+    if why:
+        return ASK, f"cannot select an authorization declaration: {why}", ids
+    eligible = set(countries["countries"])
+    if path["work_countries"]["mode"] == "required":
+        eligible &= set(path["work_countries"]["values"])
+    if not eligible:
+        return ASK, "no matching work country for an authorization declaration", ids
+    declarations = {entry["country"]: entry["status"] for entry in path["authorizations"]}
+    outcomes, reasons = [], []
+    for country in sorted(eligible):
+        status = declarations.get(country, "unknown")
+        if status == "authorized":
+            outcome, reason = OK, "authorized according to the user's declaration"
+        elif status == "requires_sponsorship":
+            outcome, reason, sponsor_ids = sponsorship({"values": ["offered"]}, claims)
+            ids = list(dict.fromkeys([*ids, *sponsor_ids]))
+            choice = path["sponsorship"]
+            if outcome == OK and choice["mode"] in ("required", "preferred") and choice["values"] == ["not_needed"]:
+                outcome, reason = ASK, "profile declares both sponsorship required and not needed; review the profile"
+        else:
+            outcome, reason = ASK, "authorization declaration is missing or unknown"
+        outcomes.append(outcome)
+        reasons.append(f"{country}: {reason}")
+    overall = OK if OK in outcomes else NO if all(r == NO for r in outcomes) else ASK
+    return overall, "; ".join(reasons), ids
+
 def compensation(pref, claims):
     value, ids, why = fact(claims, "compensation")
     if why:
@@ -93,7 +125,8 @@ def criteria(path, claims):
         ("work_arrangement", path["work_arrangements"], lambda c: accepted("work_arrangement", c["values"], claims)),
         ("work_countries", path["work_countries"], lambda c: accepted("work_countries", c["values"], claims, lambda v: v["countries"])),
         ("sponsorship", path["sponsorship"], lambda c: sponsorship(c, claims)),
-        ("contract", path["contracts"], lambda c: accepted("contract", c["values"], claims)),
+        ("contract", path["contracts"], lambda c: accepted("contract", c["values"], claims,
+            lambda v: v["alternatives"] if isinstance(v, dict) else v)),
         ("compensation", path["compensation"], lambda c: compensation(c, claims)),
     ]
     out = []
@@ -101,6 +134,9 @@ def criteria(path, claims):
         if choice["mode"] in ("required", "preferred"):
             result, text, ids = evaluate(choice)
             out.append(Criterion(key=key, strength=choice["mode"], result=result, explanation=text, claim_ids=ids))
+    if path["authorizations"]:
+        result, text, ids = authorization(path, claims)
+        out.append(Criterion(key="authorization", strength="required", result=result, explanation=text, claim_ids=ids))
     restriction = [c["id"] for c in claims if c["field_key"] == "authorization_restriction" and c["knowledge"] == "explicit"]
     if restriction:
         out.append(Criterion(key="authorization_restriction", strength="required", result=ASK, claim_ids=restriction,
@@ -112,6 +148,11 @@ def compare(preferences, claims):
     pathways = []
     for path in preferences["pathways"]:
         items = criteria(path, claims)
+        employer = preferences["employer_countries"]
+        if employer["mode"] in ("required", "preferred"):
+            result, text, ids = accepted("employer_countries", employer["values"], claims, lambda v: v["countries"])
+            items.append(Criterion(key="employer_countries", strength=employer["mode"], result=result,
+                                   explanation=text, claim_ids=ids))
         required = [item.result for item in items if item.strength == "required"]
         result = NO if NO in required else ASK if ASK in required else OK
         pathways.append(PathwayResult(id=path["id"], label=path["label"], eligibility=result,

@@ -130,6 +130,47 @@ class DraftEndpointTest(unittest.TestCase):
         self.assertEqual(r.status_code, 502)
         self.assertEqual(self.client.get(self.path).json(), [])
 
+    def test_reviewed_options_and_employer_country_reach_the_comparison(self):
+        text = "Empresa sediada no Brasil. Trabalho remoto nos EUA. Contrato CLT ou PJ. Sem patrocínio de visto."
+        job = self.client.post(f"/career/owners/{self.owner}/jobs",
+                              json={"label": "Synthetic alternatives", "original_text": text}).json()["id"]
+        endpoint = f"/career/owners/{self.owner}/jobs/{job}/snapshots/1/extractions"
+        items = [item("employer_countries", "Empresa sediada no Brasil", {"countries": ["BR"]}),
+                 item("work_countries", "Trabalho remoto nos EUA", {"countries": ["US"]}),
+                 item("contract", "Contrato CLT ou PJ", {"alternatives": ["employee", "contractor"]}),
+                 item("sponsorship", "Sem patrocínio de visto", "not_offered")]
+        with patch.object(propose, "ask_model", return_value=items):
+            response = self.client.post(endpoint + "/draft")
+        self.assertEqual(response.status_code, 200, response.text)
+        draft = response.json()
+        self.assertEqual(draft["discarded"], [])
+        self.assertEqual(self.client.get(endpoint).json(), [])
+        saved = self.client.post(endpoint, json={"extractor": draft["extractor"], "claims": draft["claims"]})
+        self.assertEqual(saved.status_code, 201, saved.text)
+        run = saved.json()
+        self.assertEqual(self.client.get(f"{endpoint}/{run['id']}").json(), run)
+        for c in run["claims"]:
+            for e in c["evidence"]:
+                self.assertEqual(text[e["start_char"]:e["end_char"]], e["excerpt"])
+        preferences = {"employer_countries": {"mode": "required", "values": ["BR"]},
+                       "pathways": [{"id": "p", "label": "P", "work_countries": {"mode": "required", "values": ["US"]},
+                                     "contracts": {"mode": "required", "values": ["employee"]},
+                                     "authorizations": [{"country": "US", "status": "authorized"}]}]}
+        created = self.client.post(f"/career/owners/{self.owner}/profiles",
+                                   json={"label": "Synthetic profile", "preferences": preferences})
+        self.assertEqual(created.status_code, 201, created.text)
+        profile = created.json()["id"]
+        comparison = f"{endpoint}/{run['id']}/comparison"
+        response = self.client.get(comparison, params={"profile_id": profile, "profile_version": 1})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual((response.json()["eligibility"], response.json()["rules_version"]), ("compatible", "rules-v2"))
+        preferences["pathways"][0]["authorizations"][0]["status"] = "requires_sponsorship"
+        updated = self.client.put(f"/career/owners/{self.owner}/profiles/{profile}",
+                                 json={"label": "Synthetic profile", "expected_version": 1, "preferences": preferences})
+        self.assertEqual(updated.status_code, 200, updated.text)
+        self.assertEqual(self.client.get(comparison, params={"profile_id": profile, "profile_version": 2}).json()["eligibility"], "incompatible")
+        self.assertEqual(self.client.get(comparison, params={"profile_id": profile, "profile_version": 1}).json()["eligibility"], "compatible")
+
     def test_unknown_capture_other_owner_and_too_long_text(self):
         with patch.object(propose, "ask_model", side_effect=AssertionError("model must not be called")):
             other = self.client.post("/career/owners", json={"label": "Synthetic other owner"}).json()["id"]
