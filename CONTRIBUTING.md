@@ -78,6 +78,10 @@ O teste constrói e inicia os containers deste projeto, insere um registro, rein
 
 Mantenha `.env` e `verification.json` fora dos commits. `docker compose down -v` remove os volumes do projeto; não use esse comando em dados que deseja preservar.
 
+### Ambientes locais
+
+Use o [guia de homologação e produção](docs/local-environments.md) para separar configurações e dados. Cada worktree de desenvolvimento precisa de projeto Docker e porta próprios. Não execute os scripts de manutenção da instalação antiga nos ambientes persistentes.
+
 ### Verificações automáticas
 
 O envio a uma branch `codex/**` executa a CI antes de abrir o pull request. Consulte [verificações, reprodução isolada e proteção do merge](docs/continuous-integration.md). O workflow usa dados descartáveis e não publica a aplicação. Vinicius abre os pull requests do projeto e faz o merge; o Codex prepara a implementação e a validação.

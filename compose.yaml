@@ -1,4 +1,4 @@
-name: career-intelligence-os
+name: ${COMPOSE_PROJECT_NAME:-career-intelligence-os}
 services:
   db:
     image: pgvector/pgvector:pg17
@@ -16,10 +16,11 @@ services:
       timeout: 5s
       retries: 20
   api:
+    image: ${CAREER_APP_IMAGE:-${COMPOSE_PROJECT_NAME:-career-intelligence-os}-api}
     build: .
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:${API_PORT:-8000}:8000"
     environment:
       DATABASE_URL: postgresql+psycopg://career_os:${POSTGRES_PASSWORD}@db:5432/career_intelligence
       AGNO_TELEMETRY: "false"
