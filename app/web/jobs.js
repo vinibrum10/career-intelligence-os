@@ -41,16 +41,33 @@ function show(job = null) {
   renderJobs();
 }
 function renderJobs() {
-  $("job-list").replaceChildren();
-  if (!jobs.length) { const p = document.createElement("p"); p.className = "empty"; p.textContent = "Nenhuma vaga cadastrada neste espaço."; $("job-list").append(p); }
-  for (const job of jobs) {
-    const button = document.createElement("button"); button.type = "button"; button.className = "profile-item" + (selected?.id === job.id ? " selected" : "");
-    button.textContent = job.latest.label; const small = document.createElement("small"); small.textContent = `Captura ${job.latest.version} · ${date(job.latest.imported_at)}`; button.append(small);
-    button.addEventListener("click", async () => {
-      if (busy || !discard()) return; lock(true);
-      try { const result = await api(`${base()}/${job.id}`); show(result); await loadHistory(); status("Vaga aberta. Continue pela revisão de fatos para comparar com seu perfil."); }
-      catch(e) { status(e.message,true); } finally { lock(false); }
-    }); $("job-list").append(button);
+  for (const containerId of ["job-list", "welcome-jobs"]) {
+    const container = $(containerId); container.replaceChildren();
+    if (!jobs.length) {
+      const p = document.createElement("p"); p.className = "empty";
+      p.textContent = owner ? "Nenhuma vaga cadastrada neste espaço. Use + Nova vaga para começar." : "Abra seu espaço para ver as vagas salvas.";
+      container.append(p);
+    }
+    for (const job of jobs) {
+      const button = document.createElement("button"); button.type = "button";
+      button.className = "profile-item" + (selected?.id === job.id ? " selected" : "");
+      button.textContent = job.latest.label;
+      const small = document.createElement("small"); small.textContent = `Abrir e comparar · Captura ${job.latest.version} · ${date(job.latest.imported_at)}`;
+      button.append(small);
+      button.addEventListener("click", async () => {
+        if (busy || !discard()) return; lock(true);
+        try {
+          const result = await api(`${base()}/${job.id}`); show(result); await loadHistory();
+          const loaded = await loadEligibility();
+          status("Vaga aberta. Confira os fatos e escolha um perfil para comparar.");
+          if (loaded) {
+            const target = $(extractions.length && comparisonProfiles.length ? "comparison-heading" : "eligibility-heading");
+            target.focus(); target.scrollIntoView({block:"start"});
+          }
+        } catch(e) { status(e.message,true); } finally { lock(false); }
+      });
+      container.append(button);
+    }
   }
 }
 async function loadJobs(append=false) {
@@ -213,16 +230,23 @@ async function loadComparisonOptions(kind, append = false) {
   else comparisonProfiles = append ? items.concat(result) : result;
   $(runs ? "more-extractions" : "more-comparison-profiles").hidden = result.length < pageSize;
 }
-$("load-eligibility").addEventListener("click", async () => {
-  if (busy || !comparisonCapture) return;
-  lock(true); $("eligibility-result").replaceChildren();
+async function loadEligibility() {
+  $("eligibility-result").replaceChildren();
   $("eligibility-status").textContent = "Carregando fatos e perfis…";
   try {
     const loaded = await Promise.allSettled([loadComparisonOptions("extractions"), loadComparisonOptions("profiles")]);
     if (loaded.some(item => item.status === "rejected")) throw new Error("Load failed");
-    fillComparisonOptions();
-  } catch { extractions = []; comparisonProfiles = []; $("eligibility-options").hidden = true; $("eligibility-status").textContent = "Não foi possível carregar fatos e perfis. Tente novamente. Sua revisão foi preservada."; }
-  finally { lock(false); }
+    fillComparisonOptions(); return true;
+  } catch {
+    extractions = []; comparisonProfiles = []; $("eligibility-options").hidden = true;
+    $("eligibility-status").textContent = "Não foi possível carregar fatos e perfis. Tente novamente. Sua revisão foi preservada.";
+    return false;
+  }
+}
+$("load-eligibility").addEventListener("click", async () => {
+  if (busy || !comparisonCapture) return;
+  lock(true);
+  try { await loadEligibility(); } finally { lock(false); }
 });
 for (const [id, kind] of [["more-extractions", "extractions"], ["more-comparison-profiles", "profiles"]]) {
   $(id).addEventListener("click", async () => {
@@ -252,9 +276,7 @@ $("compare-profile").addEventListener("click", async () => {
         const summary = document.createElement("summary");
         summary.textContent = `${fieldLabels[criterion.key] || criterion.key} · ${criterion.strength === "required" ? "Obrigatório" : "Preferência (não elimina)"} · ${resultLabels[criterion.result]}`;
         detail.append(summary);
-        paragraph(detail, {compatible:"As informações avaliadas atendem a este critério do perfil.",incompatible:"As informações avaliadas entram em conflito com este critério do perfil.",needs_confirmation:"Faltam informações suficientes ou há uma ambiguidade que precisa de confirmação."}[criterion.result]);
-        const technical = document.createElement("details"), technicalTitle = document.createElement("summary");
-        technicalTitle.textContent="Justificativa detalhada das regras (texto original)";technical.append(technicalTitle);paragraph(technical,criterion.explanation);detail.append(technical);
+        paragraph(detail, criterion.explanation);
         for (const id of criterion.claim_ids) { const claim = run.claims.find(item => item.id === id); if (claim) renderClaim(detail, claim); }
         if (!criterion.claim_ids.length) paragraph(detail, "Sem fato da vaga associado a este critério.", "hint");
         section.append(detail);
@@ -363,7 +385,7 @@ $("review-form").addEventListener("submit",async e=>{
     extractions.unshift(run);fillComparisonOptions();$("extraction-select").value=run.id;renderFacts();
     await loadComparisonOptions("profiles");fillComparisonOptions();$("extraction-select").value=run.id;renderFacts();
     $("review-status").textContent="Fatos revisados salvos. Agora escolha o perfil na etapa 2 e compare.";
-  }catch(error){$("review-status").textContent=saved ? "Fatos salvos. Não foi possível atualizar os perfis; use Carregar fatos e perfis na etapa 2." : "Não foi possível salvar. Sua revisão foi preservada. Confira valores, países, remuneração e trechos de evidência e tente novamente.";}
+  }catch(error){$("review-status").textContent=saved ? "Fatos salvos. Não foi possível atualizar os perfis; use Atualizar fatos e perfis na etapa 2." : "Não foi possível salvar. Sua revisão foi preservada. Confira valores, países, remuneração e trechos de evidência e tente novamente.";}
   finally{lock(false);if(saved){$("comparison-profile").focus();$("comparison-profile").scrollIntoView({block:"center"});}}
 });
 try { $("owner-id").value = localStorage.getItem("career-owner-id") || ""; } catch {}

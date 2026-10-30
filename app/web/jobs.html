@@ -7,9 +7,9 @@
 <div class="workspace"><aside class="card sidebar"><p class="eyebrow">SEU ESPAÇO</p><h2>Suas vagas</h2>
 <form id="connect-form"><label for="owner-id">Identificador do espaço</label><input id="owner-id" required autocomplete="off"><button class="secondary">Abrir minhas vagas</button></form>
 <p class="hint">Use o mesmo identificador dos seus perfis. <a href="/profiles">Criar ou abrir um espaço</a>.</p>
-<div class="sidebar-title"><h3>Capturas salvas</h3><button id="new-job" type="button" class="text-button" disabled>+ Nova vaga</button></div>
+<div class="sidebar-title"><h3>Vagas salvas</h3><button id="new-job" type="button" class="text-button" disabled>+ Nova vaga</button></div>
 <div id="job-list"></div><button id="more-jobs" class="secondary" type="button" hidden>Carregar mais vagas</button></aside>
-<section><div id="welcome" class="card"><h2>Um ponto de partida para comparar</h2><p>Abra seu espaço e cadastre uma vaga. Escolha qualquer cargo, país ou modalidade.</p></div>
+<section><div id="welcome" class="card"><h2>Qual vaga você quer comparar?</h2><p>Abra seu espaço na coluna ao lado. Depois, escolha uma vaga abaixo para conferir os fatos e comparar com um perfil.</p><div id="welcome-jobs"><p class="empty">Abra seu espaço para ver as vagas salvas.</p></div></div>
 <div id="editor" class="card" hidden><div class="editor-heading"><h2 id="editor-title">Nova vaga</h2><span id="version" class="badge"></span></div>
 <form id="job-form"><label for="job-label">Nome para organizar esta vaga</label><input id="job-label" required maxlength="200" placeholder="Um nome informado por você">
 <div class="form-section"><label for="source-url">Link de origem (opcional)</label><input id="source-url" type="url" maxlength="2048" placeholder="https://...">
@@ -32,13 +32,13 @@
 <p class="hint">A IA recebe somente o texto da vaga no Ollama local. Gerar rascunho não salva fatos e pode demorar alguns minutos. Você pode continuar manualmente se a IA não estiver disponível.</p>
 <p id="review-status" role="status" aria-live="polite"></p>
 <form id="review-form" hidden><div id="review-claims"></div><label class="review-confirmation"><input id="review-confirmed" type="checkbox" required> Conferi os valores e os trechos de todos os fatos abaixo.</label><div class="savebar"><button id="discard-review" type="button" class="secondary">Descartar revisão</button><button id="save-facts" type="submit">Salvar fatos revisados</button></div></form>
-<h3 class="form-section">2. Compare com um perfil</h3>
-<button id="load-eligibility" type="button" class="secondary">Carregar fatos e perfis</button>
+<h3 id="comparison-heading" class="form-section" tabindex="-1">2. Escolha um perfil e compare</h3>
+<button id="load-eligibility" type="button" class="secondary">Atualizar fatos e perfis</button>
 <p id="eligibility-status" role="status" aria-live="polite"></p>
 <div id="eligibility-options" hidden>
 <div class="grid"><div><label for="extraction-select">Conjunto de fatos salvos</label><select id="extraction-select"></select><button id="more-extractions" type="button" class="text-button" hidden>Carregar mais conjuntos</button></div>
 <div><label for="comparison-profile">Perfil · última versão carregada</label><select id="comparison-profile"></select><button id="more-comparison-profiles" type="button" class="text-button" hidden>Carregar mais perfis</button></div></div>
-<p class="hint">Para obter versões mais recentes, use “Carregar fatos e perfis” novamente. <a href="/profiles">Gerenciar perfis</a>.</p>
+<p class="hint">Para obter versões mais recentes, use “Atualizar fatos e perfis” novamente. <a href="/profiles">Gerenciar perfis</a>.</p>
 <details class="form-section"><summary>Consultar fatos e trechos de evidência</summary><div id="extraction-facts"></div></details>
 <div class="savebar"><button id="compare-profile" type="button">Comparar elegibilidade</button></div>
 </div><div id="eligibility-result" aria-live="polite"></div>

@@ -9,6 +9,23 @@ RULES_VERSION = "rules-v2"
 Result = Literal["compatible", "incompatible", "needs_confirmation"]
 OK, NO, ASK = "compatible", "incompatible", "needs_confirmation"
 
+FIELD_LABELS = {
+    "work_arrangement": "Modalidade", "work_countries": "Países de trabalho",
+    "employer_countries": "País da empresa", "contract": "Contratação",
+    "sponsorship": "Patrocínio", "compensation": "Remuneração",
+}
+VALUE_LABELS = {
+    "remote": "remoto", "hybrid": "híbrido", "on_site": "presencial",
+    "employee": "vínculo empregatício", "contractor": "prestação de serviço",
+    "self_employed": "trabalho autônomo", "other": "outro vínculo",
+}
+
+
+def describe(value):
+    if isinstance(value, list):
+        return ", ".join(describe(item) for item in value)
+    return VALUE_LABELS.get(value, str(value))
+
 class Criterion(BaseModel):
     key: str
     strength: Literal["required", "preferred"]
@@ -34,10 +51,12 @@ def fact(claims, key):
     mine = [c for c in claims if c["field_key"] == key]
     proven = [c for c in mine if c["knowledge"] == "explicit"]
     if not proven:
-        why = "only inferred" if any(c["knowledge"] == "inferred" for c in mine) else "not provided"
-        return None, [c["id"] for c in mine], f"{key}: {why}"
+        why = ("há apenas uma inferência, sem informação explícita que confirme este dado"
+               if any(c["knowledge"] == "inferred" for c in mine)
+               else "este dado não foi informado nos fatos da vaga")
+        return None, [c["id"] for c in mine], f"{FIELD_LABELS[key]}: {why}. É preciso confirmar."
     if len({json.dumps(c["value"], sort_keys=True) for c in proven}) > 1:
-        return None, [c["id"] for c in proven], f"{key}: conflicting explicit claims"
+        return None, [c["id"] for c in proven], f"{FIELD_LABELS[key]}: há informações explícitas conflitantes na vaga. É preciso confirmar qual está correta."
     return proven[0]["value"], [proven[0]["id"]], None
 
 def worst(parts):
@@ -51,15 +70,18 @@ def accepted(key, allowed, claims, pick=lambda value: value):
         return ASK, why, ids
     found = pick(value)
     ok = bool(set(found if isinstance(found, list) else [found]) & set(allowed))
-    return (OK if ok else NO), f"{key} {found} {'matches' if ok else 'does not match'} accepted {sorted(allowed)}", ids
+    conclusion = "Há uma opção em comum." if ok else "As opções não coincidem."
+    explanation = (f"{FIELD_LABELS[key]}: a vaga informa {describe(found)}; "
+                   f"seu perfil aceita {describe(sorted(allowed))}. {conclusion}")
+    return (OK if ok else NO), explanation, ids
 
 def sponsorship(choice, claims):
     if "not_needed" in choice["values"]:
-        return OK, "sponsorship not needed", []
+        return OK, "Seu perfil declara que não precisa de patrocínio.", []
     value, ids, why = fact(claims, "sponsorship")
     if why:
         return ASK, why, ids
-    return (OK, "sponsorship offered", ids) if value == "offered" else (NO, "sponsorship explicitly not offered", ids)
+    return (OK, "A vaga informa que oferece o patrocínio indicado no perfil.", ids) if value == "offered" else (NO, "O perfil indica patrocínio, mas a vaga informa que não o oferece.", ids)
 
 def authorization(path, claims):
     """Evaluate self-declarations only for countries supported by this job and pathway.
@@ -68,26 +90,26 @@ def authorization(path, claims):
     """
     countries, ids, why = fact(claims, "work_countries")
     if why:
-        return ASK, f"cannot select an authorization declaration: {why}", ids
+        return ASK, f"Não foi possível escolher a declaração de autorização aplicável. {why}", ids
     eligible = set(countries["countries"])
     if path["work_countries"]["mode"] == "required":
         eligible &= set(path["work_countries"]["values"])
     if not eligible:
-        return ASK, "no matching work country for an authorization declaration", ids
+        return ASK, "Não há país em comum entre a vaga e este caminho para avaliar a declaração de autorização.", ids
     declarations = {entry["country"]: entry["status"] for entry in path["authorizations"]}
     outcomes, reasons = [], []
     for country in sorted(eligible):
         status = declarations.get(country, "unknown")
         if status == "authorized":
-            outcome, reason = OK, "authorized according to the user's declaration"
+            outcome, reason = OK, "Você declarou ter autorização para trabalhar neste país; essa declaração não foi verificada."
         elif status == "requires_sponsorship":
             outcome, reason, sponsor_ids = sponsorship({"values": ["offered"]}, claims)
             ids = list(dict.fromkeys([*ids, *sponsor_ids]))
             choice = path["sponsorship"]
             if outcome == OK and choice["mode"] in ("required", "preferred") and choice["values"] == ["not_needed"]:
-                outcome, reason = ASK, "profile declares both sponsorship required and not needed; review the profile"
+                outcome, reason = ASK, "O perfil declara precisar de patrocínio e também não precisar dele. Revise essas informações."
         else:
-            outcome, reason = ASK, "authorization declaration is missing or unknown"
+            outcome, reason = ASK, "A autorização para trabalhar neste país não foi informada ou está marcada como desconhecida."
         outcomes.append(outcome)
         reasons.append(f"{country}: {reason}")
     overall = OK if OK in outcomes else NO if all(r == NO for r in outcomes) else ASK
@@ -101,23 +123,23 @@ def compensation(pref, claims):
     same_basis = value["currency_basis"] == pref["currency_basis"]
     if pref["accepted_currencies"]:
         if not same_basis:
-            parts.append((ASK, "advertised and actual payment currency differ"))
+            parts.append((ASK, "A vaga e o perfil usam bases diferentes para a moeda: valor anunciado ou pagamento efetivo. É preciso confirmar."))
         else:
             ok = value["currency"] in pref["accepted_currencies"]
-            parts.append((OK if ok else NO, f"currency {value['currency']} {'accepted' if ok else 'not accepted'}"))
+            parts.append((OK if ok else NO, f"A moeda {value['currency']} {'é aceita' if ok else 'não é aceita'} pelo perfil."))
     if pref["minimum"] is not None:
         comparable = (same_basis and value["currency"] == pref["accepted_currencies"][0] and value["period"] == pref["period"]
                       and value["amount_basis"] == pref["amount_basis"] != "unknown")
         if not comparable:
-            parts.append((ASK, "currency, period or gross/net basis not comparable; no conversion applied"))
+            parts.append((ASK, "Não é possível comparar os valores: confira moeda, período e se são brutos ou líquidos. Nenhuma conversão foi aplicada."))
         else:
             need = Decimal(pref["minimum"])
             if value.get("maximum") is not None:
                 ok = Decimal(value["maximum"]) >= need
-                parts.append((OK if ok else NO, f"advertised maximum {'reaches' if ok else 'is below'} required minimum"))
+                parts.append((OK if ok else NO, f"O valor máximo anunciado {'atinge o' if ok else 'fica abaixo do'} mínimo indicado no perfil."))
             else:
                 ok = Decimal(value["minimum"]) >= need
-                parts.append((OK, "advertised minimum meets required minimum") if ok else (ASK, "only a lower minimum is advertised"))
+                parts.append((OK, "O valor mínimo anunciado atende ao mínimo indicado no perfil.") if ok else (ASK, "A vaga informa apenas um mínimo abaixo do indicado no perfil. Falta confirmar se pode pagar o valor desejado."))
     return (*worst(parts), ids)
 
 def criteria(path, claims):
@@ -140,7 +162,7 @@ def criteria(path, claims):
     restriction = [c["id"] for c in claims if c["field_key"] == "authorization_restriction" and c["knowledge"] == "explicit"]
     if restriction:
         out.append(Criterion(key="authorization_restriction", strength="required", result=ASK, claim_ids=restriction,
-                             explanation="free-text restriction cannot be decided by rules; review it"))
+                             explanation="A vaga contém uma restrição de autorização em texto livre. Confira o trecho: as regras atuais não conseguem decidir esse caso."))
     return out
 
 def compare(preferences, claims):
