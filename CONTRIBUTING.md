@@ -8,7 +8,7 @@ Contributions in English or Portuguese are welcome: documentation improvements, 
 
 ### Current scope
 
-V1 is a local Docker foundation with an empty Agno/AgentOS runtime, PostgreSQL and pgvector. Container health and persistence after restart have been verified. Job analysis, agents and RAG are planned for later phases.
+V1 runs locally in Docker with PostgreSQL and pgvector. It includes configurable profiles, manual job captures, evidence-linked facts, deterministic eligibility comparison and an optional Ollama draft for human review. The web screens cover profiles, captures, manual fact entry, optional local drafts, fact review and eligibility comparison. Technical fit remains unassessed; agents and RAG are planned for later phases. See [job-extractions.md](docs/job-extractions.md) for current limitations.
 
 Keep career options open. Do not hardcode a particular role as the default goal. Future career recommendations should explain their market evidence, sources and limitations.
 
@@ -47,7 +47,7 @@ Contribuições em português ou inglês são bem-vindas: melhorias na documenta
 
 ### Escopo atual
 
-A V1 é uma base local em Docker com Agno/AgentOS vazio, PostgreSQL e pgvector. A saúde dos containers e a persistência após restart foram verificadas. Análise de vagas, agentes e RAG ficam para fases posteriores.
+A V1 funciona localmente em Docker com PostgreSQL e pgvector. Inclui perfis configuráveis, capturas manuais de vagas, fatos com evidências, comparação determinística de elegibilidade e rascunho opcional por Ollama para revisão humana. As telas cobrem perfis, capturas, cadastro manual de fatos, rascunhos locais opcionais, revisão e comparação de elegibilidade. Aderência técnica permanece não avaliada; agentes e RAG ficam para fases posteriores. Consulte [job-extractions.md](docs/job-extractions.md) para as limitações atuais.
 
 Mantenha as opções de carreira abertas. Não fixe um cargo como objetivo padrão. Recomendações futuras devem explicar suas evidências de mercado, fontes e limitações.
 

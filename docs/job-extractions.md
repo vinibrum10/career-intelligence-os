@@ -2,6 +2,12 @@
 
 ## English
 
+### Compare from the job screen
+
+At `/jobs`, save or open a job, then choose **Continuar: revisar fatos da vaga**. The latest saved capture is available immediately; use the history for an earlier capture. Step 1 lets you add facts manually or request a draft from the existing local Ollama service. Each explicit fact needs a value and an exact excerpt appearing once in the saved text. Missing information can be marked **Não informado na descrição**. Review, correct or remove suggestions, check the confirmation and choose **Salvar fatos revisados**. This creates a new extraction run without changing earlier runs. Editing a fact clears the review confirmation; leaving an unfinished review asks before discarding it. If the model is unavailable, the review is preserved and manual entry remains available.
+
+After saving facts, step 2 loads profiles and selects the newly saved run. Choose a profile and **Comparar elegibilidade**. **Carregar fatos e perfis** also loads existing runs and refreshes profile versions. Both lists support pagination. The comparison uses the indicated capture, run and profile version; unsaved description edits are excluded. It shows alternative pathways, mandatory and preferred criteria, reasons and evidence. Comparisons themselves are not stored. Technical fit remains unassessed. Draft validation checks excerpts and vocabulary, not semantic correctness: human review is still required.
+
 Everything here works on a saved capture (`/career/owners/{owner_id}/jobs/{source_id}/snapshots/{version}`) and uses the prefix `…/extractions`. Nothing is saved automatically: a person reviews and saves. Owner IDs delimit records but are not authentication; keep the service on localhost.
 
 | Method | Path (after the prefix) | Purpose |
@@ -51,6 +57,12 @@ Invoke-RestMethod -Method Post "http://127.0.0.1:8000/career/owners/<owner_id>/j
 The model is adopted only after a check on real vacancies that you label by hand; measure how many proposed claims are wrong or invented, and change the model if that rate is not low. `verify-jobs.ps1` tests the draft with simulated model answers; it does not call Ollama.
 
 ## Português
+
+### Comparar pela tela de vagas
+
+Em `/jobs`, salve ou abra uma vaga e clique em **Continuar: revisar fatos da vaga**. A captura mais recente já fica disponível; use o histórico para uma anterior. Na etapa 1, adicione fatos manualmente ou gere um rascunho pelo serviço Ollama local existente. Cada fato explícito precisa de valor e trecho exato que apareça uma vez no texto salvo. Ausências podem ser marcadas como **Não informado na descrição**. Confira, corrija ou remova sugestões, marque a confirmação e clique em **Salvar fatos revisados**. Isso cria um novo conjunto sem alterar os anteriores. Editar um fato desmarca a confirmação; sair de uma revisão não salva pede confirmação de descarte. Se o modelo estiver indisponível, a revisão é preservada e o preenchimento manual continua disponível.
+
+Depois de salvar os fatos, a etapa 2 carrega os perfis e seleciona o conjunto recém-salvo. Escolha o perfil e clique em **Comparar elegibilidade**. **Carregar fatos e perfis** também consulta conjuntos existentes e atualiza versões de perfis. As duas listas permitem carregar mais resultados. A consulta usa a captura, os fatos e a versão do perfil indicados; alterações não salvas na descrição ficam de fora. Exibe caminhos alternativos, critérios obrigatórios e preferenciais, justificativas e evidências. A comparação em si não é armazenada. Aderência técnica permanece não avaliada. A validação do rascunho verifica trechos e vocabulário, mas não garante a interpretação correta: a revisão humana continua necessária.
 
 Tudo aqui trabalha sobre uma captura salva e usa o prefixo `…/extractions`. Nada é salvo automaticamente: uma pessoa revisa e salva. Os IDs de proprietário delimitam registros, mas não são autenticação; mantenha o serviço em localhost.
 
