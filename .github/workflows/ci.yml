@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Python, JavaScript and scripts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-test.txt
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Install test dependencies
+        run: python -m pip install -r requirements-test.txt
+      - name: Python tests (SQLite; PostgreSQL runs in the other job)
+        run: python -m unittest discover -s tests -t . -v
+      - name: JavaScript syntax and regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in app/web/*.js; do
+            node --input-type=module --check < "$file"
+          done
+          shopt -s nullglob
+          for file in tests/test_*.cjs; do
+            node "$file"
+          done
+      - name: Isolated PowerShell regression tests
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Get-ChildItem tests/test_*.ps1 -ErrorAction SilentlyContinue | ForEach-Object {
+            & $_.FullName
+            if (-not $?) { throw "Regression failed: $($_.Name)" }
+          }
+
+  integration:
+    name: PostgreSQL, migrations and restart persistence
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Build and verify the isolated application
+        shell: pwsh
+        run: ./scripts/verify-ci.ps1 -ProjectName career-ci-${{ github.run_id }}-${{ github.run_attempt }}

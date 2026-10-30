@@ -21,7 +21,7 @@ Do not share passwords, tokens, `.env`, personal documents or private database c
 ### Local development and validation
 
 1. Fork this repository and clone your fork.
-2. Create a focused branch, such as `docs/improve-setup`.
+2. Use a dedicated worktree and a focused `codex/description` branch. Read `AGENTS.md` when present.
 3. Follow [README.md](README.md) and create your own `.env` from `.env.example`.
 4. Make your change and validate it.
 
@@ -34,6 +34,10 @@ For runtime or infrastructure changes, run in PowerShell from the project direct
 The test builds and starts this project's containers, inserts a test record, restarts both containers and checks persistence. It leaves the containers running and writes `verification.json` after success. Run it when restarting this installation is acceptable. Documentation changes only require checking the text, links and instructions.
 
 Keep `.env` and `verification.json` out of commits. `docker compose down -v` removes the project's volumes; do not use it on data you want to preserve.
+
+### Automated checks
+
+Push to a `codex/**` branch to run CI before opening a pull request. See [checks, isolated reproduction and merge protection](docs/continuous-integration.md). The workflow uses disposable data and does not publish the application. Vinicius opens the project pull requests and performs merges; Codex prepares the implementation and validation.
 
 ### Pull requests
 
@@ -60,7 +64,7 @@ Não compartilhe senhas, tokens, `.env`, documentos pessoais ou conteúdo privad
 ### Desenvolvimento local e validação
 
 1. Faça um fork deste repositório e clone seu fork.
-2. Crie uma branch focada, como `docs/improve-setup`.
+2. Use uma worktree dedicada e uma branch focada `codex/descricao`. Leia o `AGENTS.md` quando presente.
 3. Siga o [README.md](README.md) e crie seu próprio `.env` a partir de `.env.example`.
 4. Faça a mudança e valide o resultado.
 
@@ -73,6 +77,10 @@ Para mudanças na aplicação ou infraestrutura, execute no PowerShell na pasta 
 O teste constrói e inicia os containers deste projeto, insere um registro, reinicia os dois containers e verifica a persistência. Deixa os containers rodando e grava `verification.json` após sucesso. Execute quando for aceitável reiniciar esta instalação. Mudanças na documentação exigem apenas conferir texto, links e instruções.
 
 Mantenha `.env` e `verification.json` fora dos commits. `docker compose down -v` remove os volumes do projeto; não use esse comando em dados que deseja preservar.
+
+### Verificações automáticas
+
+O envio a uma branch `codex/**` executa a CI antes de abrir o pull request. Consulte [verificações, reprodução isolada e proteção do merge](docs/continuous-integration.md). O workflow usa dados descartáveis e não publica a aplicação. Vinicius abre os pull requests do projeto e faz o merge; o Codex prepara a implementação e a validação.
 
 ### Pull requests
 
