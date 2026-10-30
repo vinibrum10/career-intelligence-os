@@ -1,8 +1,6 @@
-import io
 import json
 import unittest
 from unittest.mock import patch
-from urllib.error import URLError
 from uuid import uuid4
 from tests import test_profiles as fixtures
 from tests.test_extractions import TEXT, at
@@ -13,14 +11,6 @@ from app.jobs.router import router as jobs_router
 def item(field_key, excerpt, value, requirement="required"):
     return {"field_key": field_key, "knowledge": "explicit", "requirement": requirement, "value": value, "excerpt": excerpt}
 
-class Reply(io.BytesIO):
-    def __enter__(self):
-        return self
-    def __exit__(self, *exc):
-        self.close()
-
-def reply(content):
-    return Reply(json.dumps({"message": {"content": content}}).encode())
 
 class BuildTest(unittest.TestCase):
     def test_every_bad_candidate_is_discarded_with_a_reason(self):
@@ -62,33 +52,30 @@ class BuildTest(unittest.TestCase):
         self.assertEqual(len(built["discarded"]), 0)
 
 class AskModelTest(unittest.TestCase):
-    def test_sends_only_the_vacancy_to_the_configured_model(self):
+    def test_sends_only_the_vacancy_to_the_cloud_client(self):
         sent = {}
-        def fake(request, timeout):
-            sent.update(url=request.full_url, body=json.loads(request.data), timeout=timeout)
-            return reply('{"claims": [{"field_key": "contract", "knowledge": "not_provided"}]}')
-        with patch("urllib.request.urlopen", fake):
+        def fake(messages, *, response_format):
+            sent.update(messages=messages, response_format=response_format)
+            return '{"claims": [{"field_key": "contract", "knowledge": "not_provided"}]}'
+        with patch.object(propose, "chat", fake):
             claims = propose.ask_model(TEXT)
         self.assertEqual(claims, [{"field_key": "contract", "knowledge": "not_provided"}])
-        self.assertEqual(sent["url"], "http://host.docker.internal:11434/api/chat")
-        self.assertEqual(sent["body"]["model"], "qwen3:8b")
-        self.assertFalse(sent["body"]["stream"])
-        self.assertEqual(sent["body"]["options"]["temperature"], 0)
-        self.assertEqual([m["role"] for m in sent["body"]["messages"]], ["system", "user"])
-        self.assertIn(TEXT, sent["body"]["messages"][1]["content"])
-        system = sent["body"]["messages"][0]["content"]
+        self.assertEqual(sent["response_format"], "json")
+        self.assertEqual([m["role"] for m in sent["messages"]], ["system", "user"])
+        self.assertEqual(sent["messages"][1]["content"], f"<vacancy>\n{TEXT}\n</vacancy>")
+        system = sent["messages"][0]["content"]
         for rule in ("even when the vacancy is written in another language", "never include a line break",
                      "one claim per option", 'is "unknown" unless the vacancy literally says gross or net'):
             self.assertIn(rule, system)
 
-    def test_unreachable_server_and_unusable_answers_become_502(self):
-        for failure in (URLError("refused"), TimeoutError("slow")):
-            with patch("urllib.request.urlopen", side_effect=failure):
+    def test_cloud_errors_keep_their_safe_status_and_invalid_drafts_fail(self):
+        for status in (401, 402, 404, 429, 502, 503):
+            with self.subTest(status=status), patch.object(propose, "chat", side_effect=propose.OllamaCloudError(status, "Safe message")):
                 with self.assertRaises(propose.HTTPException) as caught:
                     propose.ask_model(TEXT)
-                self.assertEqual(caught.exception.status_code, 502)
+                self.assertEqual(caught.exception.status_code, status)
         for content in ("not json", '{"other": 1}', '{"claims": "x"}'):
-            with patch("urllib.request.urlopen", return_value=reply(content)):
+            with patch.object(propose, "chat", return_value=content):
                 with self.assertRaises(propose.HTTPException) as caught:
                     propose.ask_model(TEXT)
                 self.assertEqual(caught.exception.status_code, 502)
@@ -115,7 +102,7 @@ class DraftEndpointTest(unittest.TestCase):
             r = self.client.post(self.path + "/draft")
         self.assertEqual(r.status_code, 200, r.text)
         draft = r.json()
-        self.assertEqual(draft["extractor"], "ollama-qwen3:8b+reviewed")
+        self.assertEqual(draft["extractor"], "ollama-cloud-gemma4:31b+reviewed")
         self.assertEqual([c["field_key"] for c in draft["claims"]], ["work_arrangement", "contract", "sponsorship"])
         self.assertEqual(len(draft["discarded"]), 1)
         self.assertEqual(self.client.get(self.path).json(), [])  # nothing stored by the draft
@@ -125,7 +112,7 @@ class DraftEndpointTest(unittest.TestCase):
         self.assertEqual(len(self.client.get(self.path).json()), 1)
 
     def test_model_failure_is_502_and_stores_nothing(self):
-        with patch("urllib.request.urlopen", side_effect=URLError("refused")):
+        with patch.object(propose, "chat", side_effect=propose.OllamaCloudError(502, "Connection failed")):
             r = self.client.post(self.path + "/draft")
         self.assertEqual(r.status_code, 502)
         self.assertEqual(self.client.get(self.path).json(), [])

@@ -365,14 +365,24 @@ $("add-fact").addEventListener("click",()=>{if(busy)return;if($("review-claims")
 $("discard-review").addEventListener("click",()=>{if(!busy && discardReview())clearReview();});
 $("draft-facts").addEventListener("click",async()=>{
   if(busy || !comparisonCapture || !discardReview())return;
-  lock(true);$("eligibility-result").replaceChildren();$("review-status").textContent="A IA local está preparando o rascunho. Aguarde; nada será salvo automaticamente…";
+  lock(true);$("eligibility-result").replaceChildren();$("review-status").textContent="A IA está preparando o rascunho. Aguarde; nada será salvo automaticamente…";
   try {
     const draft=await api(`${extractionBase()}/draft`,"POST"); clearReview(); reviewExtractor=draft.extractor;
     for(const claim of draft.claims)addReviewClaim(claim);
     reviewDirty=!!draft.claims.length;
     $("review-status").textContent=draft.claims.length ? `Rascunho pronto com ${draft.claims.length} fatos. Confira cada valor e trecho antes de salvar. ${draft.discarded.length} sugestões foram descartadas na validação.` : "A IA não retornou fatos utilizáveis. Você pode adicioná-los manualmente.";
     for(const discarded of draft.discarded)paragraph($("review-status"),`Sugestão descartada: ${discarded.reason}`,"hint");
-  }catch(e){$("review-status").textContent=e.code===422 ? "O rascunho automático aceita até 12.000 caracteres. Você pode adicionar fatos manualmente." : "Não foi possível gerar o rascunho no Ollama local. Sua revisão foi preservada. Você pode adicionar fatos manualmente ou tentar novamente.";}
+  }catch(e){
+    const reasons = {
+      401:"A chave do Ollama Cloud precisa ser corrigida no servidor.",
+      402:"É necessário adicionar créditos de uso à conta Ollama.",
+      404:"Não foi possível localizar a captura ou o modelo no Ollama Cloud.",
+      429:"O limite de uso do Ollama Cloud foi atingido. Aguarde antes de tentar novamente.",
+      503:"O acesso à IA ainda não foi configurado.",
+      422:"O rascunho automático aceita até 12.000 caracteres.",
+    };
+    $("review-status").textContent=(reasons[e.code] || "Não foi possível gerar o rascunho no Ollama Cloud.") + " Sua revisão foi preservada. Você pode continuar manualmente.";
+  }
   finally{lock(false);}
 });
 $("review-form").addEventListener("submit",async e=>{

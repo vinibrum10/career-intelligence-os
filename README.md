@@ -8,13 +8,13 @@ GitHub Actions: [testes antes do pull request / pre-PR checks](docs/continuous-i
 
 ### Manual job captures
 
-Store original vacancy text and optional source URLs at `http://127.0.0.1:8000/jobs`, with capture history and read-only comparison of an earlier capture against the latest loaded capture. Run `./verify-jobs.ps1` in PowerShell to apply migrations and verify profiles and captures in PostgreSQL, including restart persistence. On October 9, 2026, all 18 profile and job PostgreSQL tests passed; synthetic profile and vacancy histories survived a container restart, and the disposable test database was removed. See [setup, comparison and isolated checks](docs/job-captures.md). Saved captures can also hold evidence-linked facts, be compared with a profile by deterministic rules and receive an AI-assisted draft from a local Ollama model that you review before saving; see [facts, comparison and AI draft](docs/job-extractions.md). No automatic collection is included.
+Store original vacancy text and optional source URLs at `http://127.0.0.1:8000/jobs`, with capture history and read-only comparison of an earlier capture against the latest loaded capture. Run `./verify-jobs.ps1` in PowerShell to apply migrations and verify profiles and captures in PostgreSQL, including restart persistence. On October 9, 2026, all 18 profile and job PostgreSQL tests passed; synthetic profile and vacancy histories survived a container restart, and the disposable test database was removed. See [setup, comparison and isolated checks](docs/job-captures.md). Saved captures can also hold evidence-linked facts, be compared with a profile by deterministic rules and receive an AI-assisted draft from Ollama Cloud (`gemma4:31b`) that you review before saving; see [facts, comparison and AI draft](docs/job-extractions.md). No automatic collection is included. See [Ollama Cloud configuration and connection test](docs/ollama-cloud.md).
 
 ### Profile screen
 
 Manage profiles at `http://127.0.0.1:8000/profiles` using forms and preference history. After the profile migration has been applied, run `docker compose up -d --build --wait api` to load the screen. See [screen setup and usage](docs/profile-ui.md). The screen has no authentication and is intended for localhost only.
 
-Local infrastructure and configurable profiles: an Agno/AgentOS runtime with no registered agents, PostgreSQL 17 and pgvector running in Docker. No career role is predefined. This stage includes no agents, RAG, embeddings or API key; the only AI component is an optional local Ollama model that drafts vacancy facts for human review.
+Local infrastructure and configurable profiles: an Agno/AgentOS runtime with no registered agents, PostgreSQL 17 and pgvector running in Docker. No career role is predefined. This stage includes no agents, RAG or embeddings. Optional vacancy drafts use Ollama Cloud (`gemma4:31b`) with a server-only API key and human review.
 
 ### Verified environment
 
@@ -84,13 +84,13 @@ Para separar homologação e produção, siga o [guia de ambientes locais](docs/
 
 ### Capturas manuais de vagas
 
-Guarde descrições originais e links opcionais em `http://127.0.0.1:8000/jobs`, com histórico e comparação somente para leitura entre uma captura anterior e a mais recente carregada. Execute `./verify-jobs.ps1` no PowerShell para aplicar migrations e testar perfis e vagas no PostgreSQL, incluindo persistência após restart. Em 9 de outubro de 2026, os 18 testes de perfis e vagas no PostgreSQL passaram; os históricos fictícios sobreviveram ao restart dos containers e o banco descartável foi removido. Veja [instalação, comparação e testes isolados](docs/job-captures.md). As capturas salvas também podem guardar fatos com evidência, ser comparadas com um perfil por regras determinísticas e receber um rascunho de um modelo Ollama local, que você revisa antes de salvar; veja [fatos, comparação e rascunho por IA](docs/job-extractions.md). Não há coleta automática.
+Guarde descrições originais e links opcionais em `http://127.0.0.1:8000/jobs`, com histórico e comparação somente para leitura entre uma captura anterior e a mais recente carregada. Execute `./verify-jobs.ps1` no PowerShell para aplicar migrations e testar perfis e vagas no PostgreSQL, incluindo persistência após restart. Em 9 de outubro de 2026, os 18 testes de perfis e vagas no PostgreSQL passaram; os históricos fictícios sobreviveram ao restart dos containers e o banco descartável foi removido. Veja [instalação, comparação e testes isolados](docs/job-captures.md). As capturas salvas também podem guardar fatos com evidência, ser comparadas com um perfil por regras determinísticas e receber um rascunho de Ollama Cloud (`gemma4:31b`), que você revisa antes de salvar; veja [fatos, comparação e rascunho por IA](docs/job-extractions.md). Não há coleta automática. Veja [configuração e teste do Ollama Cloud](docs/ollama-cloud.md).
 
 ### Tela de perfis
 
 Cadastre e edite perfis em `http://127.0.0.1:8000/profiles`, com formulário e histórico de preferências. Com a migration de perfis aplicada, execute `docker compose up -d --build --wait api` para carregar a tela. Veja [instalação e uso da tela](docs/profile-ui.md). A tela não tem autenticação e destina-se ao uso em localhost.
 
-Infraestrutura local e perfis configuráveis: Agno/AgentOS sem agentes registrados, PostgreSQL 17 e pgvector no Docker. Nenhum cargo foi fixado. Não há agentes, RAG, embeddings ou chave de API; o único componente de IA é um modelo Ollama local opcional que rascunha fatos da vaga para revisão humana.
+Infraestrutura local e perfis configuráveis: Agno/AgentOS sem agentes registrados, PostgreSQL 17 e pgvector no Docker. Nenhum cargo foi fixado. Não há agentes, RAG ou embeddings. O rascunho opcional usa Ollama Cloud (`gemma4:31b`), com chave somente no servidor e revisão humana.
 
 ### Ambiente verificado
 

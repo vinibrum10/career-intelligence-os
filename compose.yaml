@@ -24,6 +24,7 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://career_os:${POSTGRES_PASSWORD}@db:5432/career_intelligence
       AGNO_TELEMETRY: "false"
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
     depends_on:
       db:
         condition: service_healthy

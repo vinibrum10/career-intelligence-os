@@ -7,7 +7,7 @@ const {execFileSync} = require('node:child_process');
 const root = path.resolve(__dirname, '..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'career-environment-config-'));
 const env = {...process.env};
-for (const key of ['COMPOSE_PROJECT_NAME','API_PORT','CAREER_APP_IMAGE','POSTGRES_PASSWORD']) delete env[key];
+for (const key of ['COMPOSE_PROJECT_NAME','API_PORT','CAREER_APP_IMAGE','POSTGRES_PASSWORD','OLLAMA_API_KEY']) delete env[key];
 const sha = 'a'.repeat(40);
 function config(name) {
   const file = path.join(temp, name + '.env');
