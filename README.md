@@ -80,6 +80,8 @@ Agents and RAG are reserved for a later phase. Suggestions and bug reports can b
 
 ## Português
 
+Para separar homologação e produção, siga o [guia de ambientes locais](docs/local-environments.md). A configuração antiga permanece disponível; o guia não migra dados automaticamente.
+
 ### Capturas manuais de vagas
 
 Guarde descrições originais e links opcionais em `http://127.0.0.1:8000/jobs`, com histórico e comparação somente para leitura entre uma captura anterior e a mais recente carregada. Execute `./verify-jobs.ps1` no PowerShell para aplicar migrations e testar perfis e vagas no PostgreSQL, incluindo persistência após restart. Em 9 de outubro de 2026, os 18 testes de perfis e vagas no PostgreSQL passaram; os históricos fictícios sobreviveram ao restart dos containers e o banco descartável foi removido. Veja [instalação, comparação e testes isolados](docs/job-captures.md). As capturas salvas também podem guardar fatos com evidência, ser comparadas com um perfil por regras determinísticas e receber um rascunho de um modelo Ollama local, que você revisa antes de salvar; veja [fatos, comparação e rascunho por IA](docs/job-extractions.md). Não há coleta automática.
