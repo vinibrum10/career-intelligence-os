@@ -28,8 +28,8 @@
 <h3>1. Confira os fatos da descrição</h3>
 <p>Registre o que a vaga diz e copie o trecho que comprova cada fato. Você também pode pedir um rascunho à IA local e revisar as sugestões antes de salvar.</p>
 <label for="review-source">Descrição salva para consulta e cópia dos trechos</label><textarea id="review-source" rows="6" readonly></textarea>
-<div class="savebar"><button id="add-fact" type="button" class="secondary">Adicionar fato manualmente</button><button id="draft-facts" type="button" class="secondary">Gerar rascunho com IA local</button></div>
-<p class="hint">A IA recebe somente o texto da vaga no Ollama local. Gerar rascunho não salva fatos e pode demorar alguns minutos. Você pode continuar manualmente se a IA não estiver disponível.</p>
+<div class="savebar"><button id="add-fact" type="button" class="secondary">Adicionar fato manualmente</button><button id="draft-facts" type="button" class="secondary">Gerar rascunho com IA</button></div>
+<p class="hint">Ao gerar um rascunho, somente o texto da vaga é enviado ao Ollama Cloud; seu perfil não é enviado. Gerar rascunho não salva fatos e pode demorar alguns minutos. Você pode continuar manualmente se a IA não estiver disponível.</p>
 <p id="review-status" role="status" aria-live="polite"></p>
 <form id="review-form" hidden><div id="review-claims"></div><label class="review-confirmation"><input id="review-confirmed" type="checkbox" required> Conferi os valores e os trechos de todos os fatos abaixo.</label><div class="savebar"><button id="discard-review" type="button" class="secondary">Descartar revisão</button><button id="save-facts" type="submit">Salvar fatos revisados</button></div></form>
 <h3 id="comparison-heading" class="form-section" tabindex="-1">2. Escolha um perfil e compare</h3>
