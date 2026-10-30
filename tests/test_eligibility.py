@@ -39,6 +39,31 @@ class RulesTest(unittest.TestCase):
         self.assertEqual(result(canada, job), "incompatible")
         self.assertEqual(result(brazil, job), "compatible")
 
+    def test_explanations_show_job_and_profile_values_in_portuguese(self):
+        job = [claim("work_arrangement", "remote"), claim("work_countries", {"countries": ["BR"]})]
+        profile = prefs(path(work_arrangements=choice("required", "on_site"), work_countries=choice("required", "PT")))
+        modality = criterion(profile, job, "work_arrangement")
+        country = criterion(profile, job, "work_countries")
+        self.assertEqual(modality.result, "incompatible")
+        self.assertIn("a vaga informa remoto; seu perfil aceita presencial", modality.explanation)
+        self.assertIn("a vaga informa BR; seu perfil aceita PT", country.explanation)
+        self.assertNotIn("work_countries", country.explanation)
+        accepted = criterion(prefs(path(work_countries=choice("required", "BR"))), job, "work_countries")
+        self.assertEqual(accepted.result, "compatible")
+        self.assertIn("Há uma opção em comum", accepted.explanation)
+
+    def test_unresolved_explanations_distinguish_missing_inferred_and_conflicting(self):
+        profile = prefs(path(work_countries=choice("required", "BR")))
+        cases = [([], "não foi informado"),
+                 ([claim("work_countries", {"countries": ["BR"]}, "inferred")], "apenas uma inferência"),
+                 ([claim("work_countries", {"countries": ["BR"]}), claim("work_countries", {"countries": ["PT"]})], "conflitantes")]
+        for claims, reason in cases:
+            with self.subTest(reason=reason):
+                found = criterion(profile, claims, "work_countries")
+                self.assertEqual(found.result, "needs_confirmation")
+                self.assertIn(reason, found.explanation)
+                self.assertIn("confirmar", found.explanation)
+
     def test_remote_is_never_treated_as_worldwide(self):
         profile = prefs(path(work_countries=choice("required", "CA")))
         self.assertEqual(result(profile, [claim("work_arrangement", "remote")]), "needs_confirmation")
