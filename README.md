@@ -2,6 +2,8 @@
 
 [English](#english) | [Português](#português)
 
+GitHub Actions: [testes antes do pull request / pre-PR checks](docs/continuous-integration.md).
+
 ## English
 
 ### Manual job captures
