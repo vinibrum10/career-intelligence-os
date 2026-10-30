@@ -176,3 +176,10 @@ Indexar chaves estrangeiras qualificadas por proprietário e acessos frequentes:
 5. Somente depois considerar extração automática, agentes ou RAG sob aprovação separada.
 
 Decisões para revisão: interface de cadastro, normalização geográfica, categorias de contrato, evidências de habilidades/experiência, ferramenta de migrations e modelo de acesso. Este documento propõe o desenho; não autoriza alterar código ou banco.
+
+
+## Implemented manual capture subset / Recorte implementado
+
+Manual captures now use stable `job_sources` with owner identity and sequential `job_snapshots`. The URL and user-declared association are stored on each snapshot to preserve historical provenance. Each snapshot has a required source identity; even pasted text without a URL has an internal source. External posting IDs and language metadata are deferred. See [manual captures](job-captures.md).
+
+As capturas manuais usam `job_sources` como identidade estável e `job_snapshots` como versões sequenciais. URL e associação declarada ficam em cada snapshot para preservar a origem histórica. Cada captura exige uma fonte interna, inclusive texto sem URL. Identificador externo e idioma ficam para depois. Veja [capturas manuais](job-captures.md).

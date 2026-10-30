@@ -4,11 +4,15 @@
 
 ## English
 
+### Manual job captures
+
+Store original vacancy text and optional source URLs at `http://127.0.0.1:8000/jobs`, with capture history and read-only comparison of an earlier capture against the latest loaded capture. Run `./verify-jobs.ps1` in PowerShell to apply migrations and verify profiles and captures in PostgreSQL, including restart persistence. On October 9, 2026, all 18 profile and job PostgreSQL tests passed; synthetic profile and vacancy histories survived a container restart, and the disposable test database was removed. See [setup, comparison and isolated checks](docs/job-captures.md). Saved captures can also hold evidence-linked facts, be compared with a profile by deterministic rules and receive an AI-assisted draft from a local Ollama model that you review before saving; see [facts, comparison and AI draft](docs/job-extractions.md). No automatic collection is included.
+
 ### Profile screen
 
 Manage profiles at `http://127.0.0.1:8000/profiles` using forms and preference history. After the profile migration has been applied, run `docker compose up -d --build --wait api` to load the screen. See [screen setup and usage](docs/profile-ui.md). The screen has no authentication and is intended for localhost only.
 
-Local infrastructure and configurable profiles: an Agno/AgentOS runtime with no registered agents, PostgreSQL 17 and pgvector running in Docker. No career role is predefined. This stage includes no agents, RAG, embeddings, AI provider or API key.
+Local infrastructure and configurable profiles: an Agno/AgentOS runtime with no registered agents, PostgreSQL 17 and pgvector running in Docker. No career role is predefined. This stage includes no agents, RAG, embeddings or API key; the only AI component is an optional local Ollama model that drafts vacancy facts for human review.
 
 ### Verified environment
 
@@ -33,7 +37,7 @@ Open Docker Desktop, wait for “Engine running”, and run the following in Pow
 .\verify.ps1
 ```
 
-The test builds and starts the containers, checks the API and pgvector, writes a unique identifier to the database, restarts both containers, and confirms that the identifier was preserved. It generates `verification.json` only after success. The containers remain running.
+The test builds and starts the containers, checks the API and pgvector, writes a unique identifier to the database, restarts both containers, and confirms that the identifier was preserved. Each attempt invalidates the previous `verification.json` before checking `.env`; a new report is written only after all verification steps succeed. An absent report means there is no successful result for the latest attempt. The containers remain running.
 
 To install or upgrade the profile API and run its PostgreSQL tests, also execute:
 
@@ -66,7 +70,7 @@ Official references consulted: https://docs.agno.com/agent-os/introduction, http
 
 ### Scope and next steps
 
-This V1 includes local infrastructure and configurable profiles with preference history. Infrastructure and profile tests passed in the local installation. Run `verify-profiles.ps1` to apply profile migrations and validate each new or existing installation. See [Profile API setup and examples](docs/profile-api.md). It does not yet analyze job openings or recommend careers. No role is predefined in the core; future career options should be evaluated using market evidence.
+This V1 includes local infrastructure, configurable profiles with preference history, manual job captures and comparison of saved descriptions and source URLs. Infrastructure, profile and job tests passed in the local installation. Run `verify-jobs.ps1` to apply migrations and validate profiles and jobs on each new or existing installation. See [Profile API setup and examples](docs/profile-api.md) and [job capture guide](docs/job-captures.md). It does not recommend careers or assess technical fit. No role is predefined in the core; future career options should be evaluated using market evidence.
 
 Agents and RAG are reserved for a later phase. Suggestions and bug reports can be shared through GitHub Issues.
 
@@ -74,11 +78,15 @@ Agents and RAG are reserved for a later phase. Suggestions and bug reports can b
 
 ## Português
 
+### Capturas manuais de vagas
+
+Guarde descrições originais e links opcionais em `http://127.0.0.1:8000/jobs`, com histórico e comparação somente para leitura entre uma captura anterior e a mais recente carregada. Execute `./verify-jobs.ps1` no PowerShell para aplicar migrations e testar perfis e vagas no PostgreSQL, incluindo persistência após restart. Em 9 de outubro de 2026, os 18 testes de perfis e vagas no PostgreSQL passaram; os históricos fictícios sobreviveram ao restart dos containers e o banco descartável foi removido. Veja [instalação, comparação e testes isolados](docs/job-captures.md). As capturas salvas também podem guardar fatos com evidência, ser comparadas com um perfil por regras determinísticas e receber um rascunho de um modelo Ollama local, que você revisa antes de salvar; veja [fatos, comparação e rascunho por IA](docs/job-extractions.md). Não há coleta automática.
+
 ### Tela de perfis
 
 Cadastre e edite perfis em `http://127.0.0.1:8000/profiles`, com formulário e histórico de preferências. Com a migration de perfis aplicada, execute `docker compose up -d --build --wait api` para carregar a tela. Veja [instalação e uso da tela](docs/profile-ui.md). A tela não tem autenticação e destina-se ao uso em localhost.
 
-Infraestrutura local e perfis configuráveis: Agno/AgentOS sem agentes registrados, PostgreSQL 17 e pgvector no Docker. Nenhum cargo foi fixado. Não há agentes, RAG, embeddings, provedor de IA ou chave de API nesta etapa.
+Infraestrutura local e perfis configuráveis: Agno/AgentOS sem agentes registrados, PostgreSQL 17 e pgvector no Docker. Nenhum cargo foi fixado. Não há agentes, RAG, embeddings ou chave de API; o único componente de IA é um modelo Ollama local opcional que rascunha fatos da vaga para revisão humana.
 
 ### Ambiente verificado
 
@@ -103,7 +111,7 @@ Abra o Docker Desktop, aguarde “Engine running” e execute no PowerShell na p
 .\verify.ps1
 ```
 
-O teste constrói e inicia os containers, consulta a API e pgvector, grava um identificador único no banco, reinicia os dois containers e confirma que o identificador foi preservado. Só gera `verification.json` após sucesso. Os containers ficam rodando.
+O teste constrói e inicia os containers, consulta a API e pgvector, grava um identificador único no banco, reinicia os dois containers e confirma que o identificador foi preservado. Cada tentativa invalida o `verification.json` anterior antes de conferir `.env`; um novo relatório só é gravado após todas as etapas de verificação passarem. Relatório ausente significa que não há resultado de sucesso para a última tentativa. Os containers ficam rodando.
 
 Para instalar ou atualizar a API de perfis e executar seus testes no PostgreSQL, execute também:
 
@@ -136,6 +144,6 @@ Referências oficiais consultadas: https://docs.agno.com/agent-os/introduction, 
 
 ### Escopo e próximos passos
 
-Esta V1 inclui infraestrutura local e perfis configuráveis com histórico de preferências. Os testes de infraestrutura e perfis passaram na instalação local. Execute `verify-profiles.ps1` para aplicar as migrations de perfis e validar cada instalação nova ou existente. Veja [instalação e exemplos da API de perfis](docs/profile-api.md). Ainda não analisa vagas nem recomenda carreiras. Não há cargo predefinido no core; futuras opções deverão ser avaliadas com evidências de mercado.
+Esta V1 inclui infraestrutura local, perfis configuráveis com histórico de preferências, capturas manuais de vagas e comparação de descrições e links salvos. Os testes de infraestrutura, perfis e vagas passaram na instalação local. Execute `verify-jobs.ps1` para aplicar migrations e validar perfis e vagas em cada instalação nova ou existente. Veja [instalação e exemplos da API de perfis](docs/profile-api.md) e o [guia de capturas](docs/job-captures.md). Não recomenda carreiras nem avalia aderência técnica. Não há cargo predefinido no core; futuras opções deverão ser avaliadas com evidências de mercado.
 
 Agentes e RAG ficam para uma fase posterior. Sugestões e relatos de problemas podem ser compartilhados pelas Issues no GitHub.

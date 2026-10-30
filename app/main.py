@@ -4,6 +4,9 @@ from sqlalchemy import text
 from app.database import database_url, engine
 from app.profiles.router import router as profile_router
 from app.web import router as web_router
+from app.jobs.router import router as jobs_router
+from app.jobs.extractions import router as extractions_router
+from app.jobs.propose import router as propose_router
 
 runtime = AgentOS(
     id="career-intelligence-os",
@@ -17,6 +20,9 @@ runtime = AgentOS(
 app = runtime.get_app()
 app.include_router(profile_router)
 app.include_router(web_router)
+app.include_router(jobs_router)
+app.include_router(extractions_router)
+app.include_router(propose_router)
 
 
 @app.get("/health/ready")

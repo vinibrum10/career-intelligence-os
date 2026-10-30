@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vagas · Career Intelligence OS</title><link rel="stylesheet" href="/profiles/assets/styles.css"><script src="/jobs/assets/jobs.js" type="module"></script></head>
+<body><header class="topbar"><a class="brand" href="/profiles"><span class="mark">C</span> Career Intelligence OS</a><a href="/profiles">Meus perfis</a></header>
+<main><div class="intro"><div><p class="eyebrow">EVIDÊNCIAS DO MERCADO</p><h1>Guarde a vaga.<br> Preserve o contexto.</h1><p>Cole a descrição e informe a origem. Cada nova captura mantém a anterior.</p></div></div>
+<div class="notice">Uso local, sem login. O identificador seleciona seus registros, não funciona como senha. A comparação usa fatos já salvos e as restrições do perfil; não avalia aderência técnica nem confirma se a vaga está aberta.</div>
+<p id="status" role="status" aria-live="polite" hidden></p>
+<div class="workspace"><aside class="card sidebar"><p class="eyebrow">SEU ESPAÇO</p><h2>Suas vagas</h2>
+<form id="connect-form"><label for="owner-id">Identificador do espaço</label><input id="owner-id" required autocomplete="off"><button class="secondary">Abrir minhas vagas</button></form>
+<p class="hint">Use o mesmo identificador dos seus perfis. <a href="/profiles">Criar ou abrir um espaço</a>.</p>
+<div class="sidebar-title"><h3>Capturas salvas</h3><button id="new-job" type="button" class="text-button" disabled>+ Nova vaga</button></div>
+<div id="job-list"></div><button id="more-jobs" class="secondary" type="button" hidden>Carregar mais vagas</button></aside>
+<section><div id="welcome" class="card"><h2>Um ponto de partida para comparar</h2><p>Abra seu espaço e cadastre uma vaga. Escolha qualquer cargo, país ou modalidade.</p></div>
+<div id="editor" class="card" hidden><div class="editor-heading"><h2 id="editor-title">Nova vaga</h2><span id="version" class="badge"></span></div>
+<form id="job-form"><label for="job-label">Nome para organizar esta vaga</label><input id="job-label" required maxlength="200" placeholder="Um nome informado por você">
+<div class="form-section"><label for="source-url">Link de origem (opcional)</label><input id="source-url" type="url" maxlength="2048" placeholder="https://...">
+<p class="hint">O link será guardado sem buscar a página. Não inclua senhas na URL.</p>
+<fieldset class="choices"><label><input id="confirmed" type="checkbox">Confirmo que o texto colado corresponde ao link informado</label></fieldset>
+<p class="hint">Essa confirmação é sua declaração, não uma verificação automática.</p></div>
+<div class="form-section"><label for="original-text">Descrição original</label><textarea id="original-text" rows="16" required maxlength="100000" spellcheck="false" placeholder="Cole o texto da vaga, incluindo requisitos e condições."></textarea><p class="hint">Até 100.000 caracteres. Cole a descrição completa, incluindo requisitos e condições.</p></div>
+<div class="form-section"><label for="captured-at">Quando você consultou a fonte (opcional)</label><input id="captured-at" type="datetime-local"><p class="hint">Horário do seu computador. Deixe vazio se não souber. A data do cadastro é registrada separadamente.</p></div>
+<div class="savebar"><span id="save-hint">O texto fica no banco local.</span><button id="reload-job" type="button" class="secondary" hidden>Recarregar captura salva</button><button id="save-job" type="submit">Salvar vaga</button></div></form>
+<div id="next-step" class="form-section" hidden><p>Vaga salva. Agora confira os fatos da descrição para comparar com seu perfil.</p><button id="continue-review" type="button">Continuar: revisar fatos da vaga</button></div>
+</div>
+<section id="eligibility-panel" class="card history" hidden aria-labelledby="eligibility-heading">
+<p class="eyebrow">PRÓXIMO PASSO</p><h2 id="eligibility-heading" tabindex="-1">Revisar fatos e comparar com meu perfil</h2>
+<p id="eligibility-context" class="hint"></p>
+<p class="hint">Usa a captura salva indicada acima. Alterações ainda não salvas na descrição não entram aqui. Para outra versão, use o histórico.</p>
+<h3>1. Confira os fatos da descrição</h3>
+<p>Registre o que a vaga diz e copie o trecho que comprova cada fato. Você também pode pedir um rascunho à IA local e revisar as sugestões antes de salvar.</p>
+<label for="review-source">Descrição salva para consulta e cópia dos trechos</label><textarea id="review-source" rows="6" readonly></textarea>
+<div class="savebar"><button id="add-fact" type="button" class="secondary">Adicionar fato manualmente</button><button id="draft-facts" type="button" class="secondary">Gerar rascunho com IA local</button></div>
+<p class="hint">A IA recebe somente o texto da vaga no Ollama local. Gerar rascunho não salva fatos e pode demorar alguns minutos. Você pode continuar manualmente se a IA não estiver disponível.</p>
+<p id="review-status" role="status" aria-live="polite"></p>
+<form id="review-form" hidden><div id="review-claims"></div><label class="review-confirmation"><input id="review-confirmed" type="checkbox" required> Conferi os valores e os trechos de todos os fatos abaixo.</label><div class="savebar"><button id="discard-review" type="button" class="secondary">Descartar revisão</button><button id="save-facts" type="submit">Salvar fatos revisados</button></div></form>
+<h3 class="form-section">2. Compare com um perfil</h3>
+<button id="load-eligibility" type="button" class="secondary">Carregar fatos e perfis</button>
+<p id="eligibility-status" role="status" aria-live="polite"></p>
+<div id="eligibility-options" hidden>
+<div class="grid"><div><label for="extraction-select">Conjunto de fatos salvos</label><select id="extraction-select"></select><button id="more-extractions" type="button" class="text-button" hidden>Carregar mais conjuntos</button></div>
+<div><label for="comparison-profile">Perfil · última versão carregada</label><select id="comparison-profile"></select><button id="more-comparison-profiles" type="button" class="text-button" hidden>Carregar mais perfis</button></div></div>
+<p class="hint">Para obter versões mais recentes, use “Carregar fatos e perfis” novamente. <a href="/profiles">Gerenciar perfis</a>.</p>
+<details class="form-section"><summary>Consultar fatos e trechos de evidência</summary><div id="extraction-facts"></div></details>
+<div class="savebar"><button id="compare-profile" type="button">Comparar elegibilidade</button></div>
+</div><div id="eligibility-result" aria-live="polite"></div>
+<p class="hint">Aderência técnica não avaliada. Cidade/região, condições de mudança, viagens e interesses não entram nas regras atuais. Compatibilidade considera apenas as restrições avaliadas e não verifica autorização legal para trabalhar.</p>
+</section>
+<div id="history" class="card history" hidden><p class="eyebrow">FONTES PRESERVADAS</p><h2>Histórico de capturas</h2><div id="history-list"></div><button id="more-history" type="button" class="secondary" hidden>Carregar mais capturas</button><div id="capture-preview" hidden><h3 id="capture-title"></h3><p id="capture-origin"></p><label for="capture-text">Texto salvo nesta captura</label><textarea id="capture-text" rows="12" readonly></textarea><section id="capture-comparison" class="form-section" aria-label="Comparação de capturas"></section></div></div>
+</section></div><footer><span>Captura manual · Comparação por regras com evidências</span><a href="/docs">Documentação da API</a></footer></main></body></html>

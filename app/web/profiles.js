@@ -11,7 +11,8 @@ const fieldNames = {preferences:"Preferências",current_location:"Localização 
 function validationError(error) {
   const path = error.loc.slice(1).map(part => typeof part === "number" ? String(part + 1) : fieldNames[part] || part).join(" → ");
   const explanations = {"A required/preferred criterion needs at least one value":"Escolha pelo menos um valor para o critério obrigatório ou preferencial.","Country is required when supplying local location details":"Informe o país quando preencher cidade, região ou deslocamento.","Commute radius requires a city":"Informe a cidade para definir o raio de deslocamento.","Relocation conditions require relocation_allowed=true":"Selecione Sim em Aceita mudança para informar suas condições.","Compensation criterion requires currencies or minimum":"Informe moedas ou valor mínimo para a preferência de remuneração.","Specify advertised versus actual payment currency":"Escolha se a moeda se refere ao valor anunciado ou ao pagamento efetivo.","Minimum requires exactly one currency, period and gross/net basis":"O valor mínimo exige uma moeda, período e base bruta, líquida ou desconhecida."};
-  const detail = explanations[error.msg.replace(/^Value error, /, "")] || (error.type === "string_pattern_mismatch" ? "Confira o formato: país com duas letras e moeda com três letras." : "Confira o valor informado e os limites deste campo.");
+  const currencyField = error.loc.includes("accepted_currencies");
+  const detail = explanations[error.msg.replace(/^Value error, /, "")] || (error.type === "string_pattern_mismatch" ? (currencyField ? "Use o código da moeda com três letras maiúsculas, como BRL ou USD." : "Use o código do país com duas letras maiúsculas, como BR ou US.") : "Confira o valor informado e os limites deste campo.");
   return path + ": " + detail;
 }
 const state = {owner: null, profile: null, dirty: false, busy: false, profiles: [], pathways: [], history: []};
@@ -77,7 +78,7 @@ function criterion(parent, title, value = {}, options = null, codes = false) {
     const group = node("fieldset", undefined, "choices"); group.append(node("legend", title));
     Object.entries(options).forEach(([key, text]) => {const label = node("label"); const check = node("input"); check.type = "checkbox"; check.value = key; check.checked = (value.values || []).includes(key); check.addEventListener("change", markDirty); label.append(check, document.createTextNode(text)); group.append(label); checks.push(check);});
     row.append(group);
-  } else input = field(row, codes ? title + " · códigos separados por vírgula" : title + " · um por linha", (value.values || []).join(codes ? ", " : "\n"), {multiline: !codes, maxLength: 20100});
+  } else input = field(row, codes ? title + " · códigos separados por vírgula" : title + " · um por linha", (value.values || []).join(codes ? ", " : "\n"), {multiline: !codes, maxLength: 20100, ...(codes ? {placeholder: "Ex.: BR, US, PT"} : {})});
   function sync() { const inactive = ["unspecified", "unrestricted"].includes(mode.value); if (input) input.disabled = inactive; checks.forEach(c => c.disabled = inactive); }
   mode.addEventListener("change", sync); sync();
   return () => {
@@ -108,6 +109,7 @@ function renderPathway(raw) {
   const label = field(grid, "Nome do caminho", raw.label); label.required = true;
   const scope = field(grid, "Abrangência da busca", raw.search_scope || "unspecified", {select: scopes});
   const countries = criterion(card, "Países onde trabalhar", raw.work_countries, null, true);
+  card.append(node("p", "Países de onde você aceita exercer o trabalho, inclusive remoto. O país da empresa é definido em Interesses e país do empregador.", "hint"));
   const work = criterion(card, "Modalidade de trabalho", raw.work_arrangements, arrangements);
   const mobility = node("div", undefined, "grid"); card.append(mobility);
   const relocation = field(mobility, "Aceita mudança?", raw.relocation_allowed === null || raw.relocation_allowed === undefined ? "" : String(raw.relocation_allowed), {select: boolOptions});
@@ -133,6 +135,7 @@ function editor(profile = null) {
   const prefs = profile?.latest.preferences || {};
   $("current-location").replaceChildren(); locationControl = location($("current-location"), prefs.current_location);
   $("interests").replaceChildren(); interestControls = {employer_countries: criterion($("interests"), "País do empregador", prefs.employer_countries, null, true), career_roles: criterion($("interests"), "Cargos de interesse", prefs.career_roles), domains: criterion($("interests"), "Áreas de interesse", prefs.domains)};
+  $("interests").prepend(node("p", "País onde a empresa está localizada. Pode ser diferente do país de onde você trabalha.", "hint"));
   $("pathways").replaceChildren(); (prefs.pathways || []).forEach(renderPathway);
   if ((prefs.skill_evidence || []).length) $("interests").append(node("p", "Habilidades e suas fontes já cadastradas serão preservadas; sua edição ainda é feita pela API.", "hint"));
   renderProfiles();
@@ -161,7 +164,7 @@ function locationText(value) { return [value?.city, value?.region, value?.countr
 function renderHistory() {
   $("history-list").replaceChildren();
   state.history.forEach(version => {
-    const details = node("details", undefined, "history-entry"); const summary = node("summary", "Versão " + version.version + " · " + locationText(version.preferences.current_location)); summary.append(node("span", new Date(version.created_at).toLocaleString("pt-BR"))); details.append(summary);
+    const details = node("details", undefined, "history-entry"); const summary = node("summary", "Versão " + version.version + " · Localização: " + locationText(version.preferences.current_location)); summary.append(node("span", new Date(version.created_at).toLocaleString("pt-BR"))); details.append(summary);
     const prefs = version.preferences; const dl = node("dl");
     const pair = (name, value) => dl.append(node("dt", name), node("dd", value));
     pair("Localização atual", locationText(prefs.current_location)); pair("País do empregador", friendlyChoice(prefs.employer_countries)); pair("Cargos", friendlyChoice(prefs.career_roles)); pair("Áreas", friendlyChoice(prefs.domains));

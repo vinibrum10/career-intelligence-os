@@ -8,7 +8,7 @@
 
 Help people compare career opportunities using traceable evidence and their own preferences. The product must support different profiles, countries, employment arrangements and career interests. No role, location, currency or personal preference may be hardcoded as a universal default.
 
-The infrastructure V1 has been verified locally: an empty Agno/AgentOS runtime, PostgreSQL with pgvector, a persistent Docker volume, healthy services and a database record preserved after container restart. Agents, RAG, profile management and job analysis are not implemented yet. This document defines the next phase; it does not establish that these features already exist or authorize their implementation.
+The local implementation includes PostgreSQL with pgvector, persistent Docker storage, configurable profiles with version history and manual job captures with history. The API also supports evidence-linked facts, deterministic eligibility comparison and an optional local Ollama draft for human review. The web screens cover profiles, job captures, manual fact entry, optional local drafts, fact review and eligibility comparison. Technical fit remains unassessed; agents and RAG are not implemented. See [job-extractions.md](job-extractions.md) for implemented rules and limitations. The requirements below describe the intended behavior, including capabilities not yet implemented.
 
 ### 2. Configurable profiles
 
@@ -105,7 +105,7 @@ Before implementation, decide the profile entry interface, model/provider if nee
 
 Ajudar pessoas a comparar oportunidades de carreira usando evidências rastreáveis e suas próprias preferências. O produto deve atender a diferentes perfis, países, formas de contratação e interesses profissionais. Nenhum cargo, local, moeda ou preferência pessoal pode ser fixado como padrão universal no código.
 
-A infraestrutura V1 foi verificada localmente: Agno/AgentOS vazio, PostgreSQL com pgvector, volume Docker persistente, serviços saudáveis e registro preservado após reiniciar os containers. Agentes, RAG, gestão de perfis e análise de vagas ainda não foram implementados. Este documento define a próxima fase; não declara essas funcionalidades existentes nem autoriza sua implementação.
+A implementação local inclui PostgreSQL com pgvector, armazenamento persistente em Docker, perfis configuráveis com histórico de versões e capturas manuais de vagas com histórico. A API também oferece fatos com evidências, comparação determinística de elegibilidade e rascunho opcional por Ollama local para revisão humana. As telas cobrem perfis, capturas de vagas, cadastro manual de fatos, rascunhos locais opcionais, revisão e comparação de elegibilidade. Aderência técnica permanece não avaliada; agentes e RAG não foram implementados. Consulte [job-extractions.md](job-extractions.md) para regras implementadas e limitações. Os requisitos abaixo descrevem o comportamento desejado, incluindo capacidades ainda não implementadas.
 
 ### 2. Perfis configuráveis
 
