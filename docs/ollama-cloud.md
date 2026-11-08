@@ -6,7 +6,7 @@ Por solicitação de Vinicius em 29/10/2026, esta integração substitui o trans
 
 `app/ollama_cloud.py` usa o SDK oficial `ollama==0.6.3`, host fixo `https://ollama.com`, modelo `gemma4:31b` e `Authorization: Bearer` com o valor não vazio de `OLLAMA_API_KEY`. Não usa `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` ou autenticação do Ollama local. Sem a chave específica, a chamada é bloqueada antes de criar o cliente. Redirecionamentos não são seguidos e os erros do provedor não são expostos integralmente.
 
-O endpoint existente `POST /career/owners/{owner_id}/jobs/{source_id}/snapshots/{version}/extractions/draft`, em `app/jobs/propose.py`, passa a usar esse cliente. Não há nova rota de chat pública. A chave nunca vai para HTML, JavaScript, resposta da API ou logs do aplicativo. A indisponibilidade da IA preserva o fluxo manual.
+O endpoint existente `POST /career/owners/{owner_id}/jobs/{source_id}/snapshots/{version}/extractions/draft`, em `app/jobs/propose.py`, passa a usar esse cliente. O leitor aceita JSON puro ou um único bloco Markdown contendo o JSON. O conteúdo continua sujeito à validação de formato e de evidências. Não há nova rota de chat pública. A chave nunca vai para HTML, JavaScript, resposta da API ou logs do aplicativo. A indisponibilidade da IA preserva o fluxo manual.
 
 O Docker Compose recebe a chave do arquivo privado selecionado por `--env-file`, como já faz com a senha do banco. Os modelos `.env.example`, `.env.staging.example` e `.env.production.example` incluem somente `OLLAMA_API_KEY=` vazio. Esses arquivos privados já estão ignorados pelo Git e pelo contexto Docker.
 

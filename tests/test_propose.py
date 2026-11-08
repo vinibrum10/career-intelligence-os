@@ -68,13 +68,22 @@ class AskModelTest(unittest.TestCase):
                      "one claim per option", 'is "unknown" unless the vacancy literally says gross or net'):
             self.assertIn(rule, system)
 
+    def test_accepts_a_single_markdown_block_around_json(self):
+        expected = [{"field_key": "contract", "knowledge": "not_provided"}]
+        for opening, eol in (("```json", "\n"), ("```", "\r\n")):
+            with self.subTest(opening=opening):
+                content = f"  {opening}{eol}{json.dumps({'claims': expected})}{eol}```\n"
+                with patch.object(propose, "chat", return_value=content):
+                    self.assertEqual(propose.ask_model(TEXT), expected)
+
     def test_cloud_errors_keep_their_safe_status_and_invalid_drafts_fail(self):
         for status in (401, 402, 404, 429, 502, 503):
             with self.subTest(status=status), patch.object(propose, "chat", side_effect=propose.OllamaCloudError(status, "Safe message")):
                 with self.assertRaises(propose.HTTPException) as caught:
                     propose.ask_model(TEXT)
                 self.assertEqual(caught.exception.status_code, status)
-        for content in ("not json", '{"other": 1}', '{"claims": "x"}'):
+        for content in ("not json", '{"other": 1}', '{"claims": "x"}',
+                        '```json\n{"claims": []}\n```\nTexto extra', '```json\nnot json\n```'):
             with patch.object(propose, "chat", return_value=content):
                 with self.assertRaises(propose.HTTPException) as caught:
                     propose.ask_model(TEXT)
