@@ -1,8 +1,8 @@
 # Career Intelligence OS — Documento de foco e direção
 
-**Versão:** 0.1
-**Data:** 28 de outubro de 2026
-**Status:** proposta para validação de Vinicius
+**Versão:** 0.2
+**Data:** 7 de novembro de 2026
+**Status:** fluxo da V1 aceito em homologação. Documento de foco e próximas entregas em revisão.
 
 ## 1. Para que este documento existe
 
@@ -37,34 +37,28 @@ Ao final desta etapa, a pessoa deve conseguir responder:
 
 Elegibilidade significa compatibilidade com os critérios efetivamente avaliados pelo sistema. Aderência técnica, autorização legal para trabalhar e probabilidade de contratação exigem outras evidências e não fazem parte dessa conclusão.
 
-## 5. Situação na retomada
+## 5. Situação da V1 em homologação
 
-Levantamento realizado em 28 de outubro de 2026 a partir do repositório local:
+A homologação usa o commit `3ba6328a779b101db63397499c3a76b587c267a0`. A aplicação e o banco PostgreSQL com pgvector rodam localmente em Docker, em ambiente separado da produção.
 
-| Parte | Situação identificada |
+| Parte | Situação verificada |
 | --- | --- |
-| Infraestrutura local | Aplicação e PostgreSQL com pgvector configurados em Docker, com validações anteriores documentadas. |
-| Perfis | Cadastro e edição com histórico de preferências. |
-| Vagas | Captura manual do texto original e da origem, com histórico. |
-| Fatos da vaga | Estrutura para registrar fatos e seus trechos de evidência, preservando versões. |
-| Comparação | Regras de elegibilidade implementadas para parte dos critérios do perfil. |
-| Rascunho por IA | Integração opcional com Ollama local; sugestões precisam de revisão humana antes de serem salvas. |
-| Interface do fluxo completo | Alterações locais em sete arquivos, ainda não registradas em commit; precisam de revisão e validação antes de considerar a etapa concluída. |
-| Funcionamento nesta retomada | Ainda não confirmado: o serviço do Docker estava indisponível na consulta. |
-
-As validações anteriores não comprovam o funcionamento das alterações locais atuais. A qualidade do rascunho no modelo real também precisa de avaliação própria: respostas simuladas em testes não comprovam a interpretação correta de vagas reais.
+| Fluxo manual | Vinicius aceitou o fluxo de perfil configurável, vaga salva, fatos revisados e comparação com justificativas. O teste usou dois perfis fictícios e comprovou a persistência após reiniciar a aplicação e o banco. [CIO-2](https://vinibrum10.atlassian.net/browse/CIO-2) |
+| Histórico e comparação | A interface permite consultar a captura original, conferir os trechos e escolher uma versão do perfil, incluindo versões anteriores. |
+| Rascunho opcional | Vinicius aceitou o piloto do Ollama Cloud em homologação. Quatro vagas fictícias geraram os 20 fatos esperados com evidência. A adoção com vagas reais depende de avaliar uma amostra rotulada e autorizada. [CIO-3](https://vinibrum10.atlassian.net/browse/CIO-3) |
+| Verificações | Os dois checks obrigatórios da main passaram no commit homologado. [Execução da CI](https://github.com/vinibrum10/career-intelligence-os/actions/runs/42432855315) |
 
 ## 6. Escopo da etapa atual
 
 1. Criar ou selecionar um perfil e configurar suas restrições e preferências.
 2. Salvar manualmente uma descrição de vaga, com origem quando conhecida.
 3. Consultar a descrição original e suas capturas anteriores.
-4. Cadastrar fatos manualmente ou solicitar um rascunho ao Ollama local.
-5. Conferir, corrigir ou remover sugestões e salvar os fatos revisados.
+4. Cadastrar fatos pelo fluxo manual, que é o padrão de uso da V1. Em homologação, também é possível solicitar um rascunho opcional ao Ollama Cloud.
+5. Conferir os fatos contra a descrição salva. Ao usar um rascunho, corrigir ou remover sugestões e confirmar explicitamente antes de salvar.
 6. Comparar um conjunto de fatos com uma versão identificada do perfil.
 7. Exibir resultado, motivos, evidências, preferências e pendências de confirmação.
 
-O fluxo manual precisa funcionar mesmo quando a IA estiver indisponível. A comparação é calculada sob consulta; um histórico persistido dos resultados de comparação ainda não está implementado.
+O fluxo manual funciona com a IA indisponível. Quando um rascunho é solicitado, o servidor envia ao Ollama Cloud somente o texto da vaga. A comparação é calculada sob consulta; um histórico persistido dos resultados de comparação ainda não está implementado.
 
 ## 7. Princípios que devem orientar as decisões
 
@@ -86,35 +80,35 @@ O fluxo manual precisa funcionar mesmo quando a IA estiver indisponível. A comp
 - Recomendação automática de uma carreira ou estimativa de chance de contratação.
 - Avaliação de aderência técnica sem histórico documentado de habilidades e experiência.
 - Agentes autônomos, RAG e busca por embeddings.
-- Publicação para múltiplos usuários, autenticação e serviços pagos ou em nuvem.
+- Publicação externa, acesso multiusuário, autenticação e novos serviços externos. O Ollama Cloud é o recurso opcional de rascunho já integrado.
 - Reformulações amplas de interface ou infraestrutura sem necessidade demonstrada para concluir o fluxo atual.
 
 Esses itens podem ser avaliados depois, com objetivo e critérios próprios. A existência de Agno e pgvector na infraestrutura não torna seu uso uma prioridade por si só.
 
 ## 9. Critérios para concluir a etapa atual
 
-- [ ] O fluxo completo funciona na interface, usando dados fictícios de teste.
-- [ ] Dois perfis com restrições diferentes produzem resultados coerentes para a mesma vaga, com justificativas.
-- [ ] Alterar o perfil permite obter uma nova comparação usando a versão escolhida.
-- [ ] Fatos e evidências podem ser conferidos contra a captura exata utilizada.
-- [ ] Informação ausente ou conflitante aparece como pendência de confirmação quando impede uma conclusão.
-- [ ] Trabalho remoto restrito a um país não é interpretado como remoto mundial.
-- [ ] Preferências opcionais não eliminam uma vaga e caminhos alternativos são respeitados.
-- [ ] A indisponibilidade do Ollama permite continuar pelo cadastro manual de fatos.
-- [ ] Os registros persistem após reiniciar a aplicação e o banco, sem misturar espaços de proprietários diferentes.
+- [x] O fluxo completo funciona na interface, usando dados fictícios de teste.
+- [x] Dois perfis com restrições diferentes produzem resultados coerentes para a mesma vaga, com justificativas.
+- [x] Alterar o perfil permite obter uma nova comparação usando a versão escolhida.
+- [x] Fatos e evidências podem ser conferidos contra a captura exata utilizada.
+- [x] Informação ausente ou conflitante aparece como pendência de confirmação quando impede uma conclusão.
+- [x] Trabalho remoto restrito a um país não é interpretado como remoto mundial.
+- [x] Preferências opcionais não eliminam uma vaga e caminhos alternativos são respeitados.
+- [x] A indisponibilidade do Ollama permite continuar pelo cadastro manual de fatos.
+- [x] Os registros persistem após reiniciar a aplicação e o banco, sem misturar espaços de proprietários diferentes.
 - [ ] As verificações pertinentes passam e a documentação corresponde ao comportamento entregue.
 - [ ] As alterações são revisadas e o resultado é apresentado a Vinicius para validação de uso.
 
-## 10. Ordem proposta para os próximos passos
+## 10. Próximos passos da V1
 
-| Ordem | Entrega | Condição para avançar |
-| --- | --- | --- |
-| 1 | Validar este documento de foco. | Vinicius confirma a direção ou solicita ajustes. |
-| 2 | Revisar e validar as alterações atuais da interface, corrigindo problemas do fluxo. | Critérios da seção 9 atendidos e resultado apresentado para validação. |
-| 3 | Avaliar o rascunho do Ollama em uma pequena amostra de vagas conferidas manualmente. | Registrar erros de interpretação, omissões e fatos sem suporte; definir um nível aceitável antes de considerar o recurso confiável. |
-| 4 | Definir a próxima entrega com base no uso do fluxo validado. | Escolher um problema prioritário e seus critérios de aceitação. |
+| Entrega | Situação |
+| --- | --- |
+| Homologar o fluxo manual e a escolha de versões | Aceito por Vinicius no [CIO-2](https://vinibrum10.atlassian.net/browse/CIO-2). |
+| Avaliar os rascunhos com dados fictícios | Piloto aceito por Vinicius no [CIO-3](https://vinibrum10.atlassian.net/browse/CIO-3). |
+| Alinhar a documentação à entrega | Em revisão no [CIO-6](https://vinibrum10.atlassian.net/browse/CIO-6). |
+| Encerrar a V1 | Registrar a decisão de liberação local e escolher ou adiar a próxima entrega no [CIO-4](https://vinibrum10.atlassian.net/browse/CIO-4). |
 
-Possíveis evoluções para a ordem 4 incluem análise de habilidades recorrentes na amostra, registro de experiência e habilidades pessoais, avaliação de lacunas e histórico de comparações. A prioridade entre elas permanece aberta para decisão; nenhuma está incluída automaticamente na etapa atual.
+Possíveis evoluções incluem análise de habilidades recorrentes na amostra, registro de experiência e habilidades pessoais, avaliação de lacunas e histórico de comparações. A prioridade entre elas permanece aberta.
 
 ## 11. Regra para evitar perda de foco
 
@@ -131,11 +125,10 @@ Ao retomar o projeto, consultar este documento, conferir o estado real da aplica
 ## 12. Pontos para validação de Vinicius
 
 - O objetivo da seção 3 representa o produto que queremos construir?
-- Concluir o fluxo local de comparação é a prioridade imediata correta?
 - Os limites da seção 8 preservam o foco desejado para esta etapa?
 - Existe algum resultado essencial que deveria entrar nos critérios de conclusão?
 
-Até essa validação, a direção e a sequência propostas neste documento permanecem como rascunho.
+A aprovação da direção mais ampla e a escolha de próximas entregas continuam abertas.
 
 ## 13. Referências do projeto
 
@@ -150,4 +143,5 @@ Até essa validação, a direção e a sequência propostas neste documento perm
 
 | Data | Registro | Situação |
 | --- | --- | --- |
-| 28/10/2026 | Criação deste documento com foco proposto na conclusão e validação do fluxo local de comparação. | Aguardando validação de Vinicius. |
+| 28/10/2026 | Criação deste documento com foco proposto na conclusão e validação do fluxo local de comparação. | Proposta inicial. |
+| 07/11/2026 | Aceite do fluxo manual em homologação e do piloto do Ollama Cloud com vagas fictícias. | Fluxo manual validado para a V1. Avaliação com vagas reais pendente antes da adoção da IA. |

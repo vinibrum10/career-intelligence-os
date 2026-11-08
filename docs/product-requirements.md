@@ -8,7 +8,7 @@
 
 Help people compare career opportunities using traceable evidence and their own preferences. The product must support different profiles, countries, employment arrangements and career interests. No role, location, currency or personal preference may be hardcoded as a universal default.
 
-The local implementation includes PostgreSQL with pgvector, persistent Docker storage, configurable profiles with version history and manual job captures with history. The API also supports evidence-linked facts, deterministic eligibility comparison and an optional local Ollama draft for human review. The web screens cover profiles, job captures, manual fact entry, optional local drafts, fact review and eligibility comparison. Technical fit remains unassessed; agents and RAG are not implemented. See [job-extractions.md](job-extractions.md) for implemented rules and limitations. The requirements below describe the intended behavior, including capabilities not yet implemented.
+The local implementation includes PostgreSQL with pgvector, persistent Docker storage, configurable profiles with version history and manual job captures with history. The API also supports evidence-linked facts, deterministic eligibility comparison and an optional Ollama Cloud draft for human review. The web screens cover profiles, job captures, manual fact entry, optional cloud drafts, fact review and eligibility comparison. Technical fit remains unassessed; agents and RAG are not implemented. See [job-extractions.md](job-extractions.md) for implemented rules and limitations. The requirements below describe the intended behavior, including capabilities not yet implemented.
 
 ### 2. Configurable profiles
 
@@ -76,7 +76,7 @@ Always show reasons and evidence. Keep technical fit separate from geographic an
 
 Profiles, imported private documents and job-analysis records belong in local storage, separate from public source code. Do not commit real profiles, personal documents, credentials or private database contents. Public examples must use synthetic data. Do not transmit profile data to a model provider without a clearly configured and authorized data flow.
 
-Profile preferences must survive application restart and remain isolated by profile. A persistent volume is not a backup. Docker-local storage does not mean model inference is automatically local; model provider selection and costs remain undecided.
+Profile preferences must survive application restart and remain isolated by profile. A persistent volume is not a backup. The optional draft sends only the vacancy text to Ollama Cloud when requested. Adoption for real vacancies depends on a reviewed, authorized sample.
 
 ### 7. Acceptance criteria for the next phase
 
@@ -105,7 +105,7 @@ Before implementation, decide the profile entry interface, model/provider if nee
 
 Ajudar pessoas a comparar oportunidades de carreira usando evidências rastreáveis e suas próprias preferências. O produto deve atender a diferentes perfis, países, formas de contratação e interesses profissionais. Nenhum cargo, local, moeda ou preferência pessoal pode ser fixado como padrão universal no código.
 
-A implementação local inclui PostgreSQL com pgvector, armazenamento persistente em Docker, perfis configuráveis com histórico de versões e capturas manuais de vagas com histórico. A API também oferece fatos com evidências, comparação determinística de elegibilidade e rascunho opcional por Ollama local para revisão humana. As telas cobrem perfis, capturas de vagas, cadastro manual de fatos, rascunhos locais opcionais, revisão e comparação de elegibilidade. Aderência técnica permanece não avaliada; agentes e RAG não foram implementados. Consulte [job-extractions.md](job-extractions.md) para regras implementadas e limitações. Os requisitos abaixo descrevem o comportamento desejado, incluindo capacidades ainda não implementadas.
+A implementação local inclui PostgreSQL com pgvector, armazenamento persistente em Docker, perfis configuráveis com histórico de versões e capturas manuais de vagas com histórico. A API também oferece fatos com evidências, comparação determinística de elegibilidade e rascunho opcional por Ollama Cloud para revisão humana. As telas cobrem perfis, capturas de vagas, cadastro manual de fatos, rascunhos opcionais via nuvem, revisão e comparação de elegibilidade. Aderência técnica permanece não avaliada; agentes e RAG não foram implementados. Consulte [job-extractions.md](job-extractions.md) para regras implementadas e limitações. Os requisitos abaixo descrevem o comportamento desejado, incluindo capacidades ainda não implementadas.
 
 ### 2. Perfis configuráveis
 
@@ -173,7 +173,7 @@ Sempre mostre justificativas e evidências. Separe aderência técnica de elegib
 
 Perfis, documentos privados importados e análises devem ficar no armazenamento local, separados do código público. Não inclua perfis reais, documentos pessoais, credenciais ou conteúdo privado do banco em commits. Exemplos públicos devem usar dados fictícios. Não transmita dados do perfil a um provedor de modelos sem fluxo claramente configurado e autorizado.
 
-As preferências devem sobreviver ao restart da aplicação e permanecer isoladas por perfil. Volume persistente não é backup. Armazenamento local em Docker não significa inferência automaticamente local; escolha de provedor e custos continuam indefinidos.
+As preferências devem sobreviver ao restart da aplicação e permanecer isoladas por perfil. Volume persistente não é backup. Quando solicitado, o rascunho opcional envia somente o texto da vaga ao Ollama Cloud. A adoção com vagas reais depende de uma amostra revisada e autorizada.
 
 ### 7. Critérios de aceitação da próxima fase
 
