@@ -19,7 +19,7 @@ const date = value => value ? new Date(value).toLocaleString("pt-BR") : "Não in
 function remember(id) { try { localStorage.setItem("career-owner-id", id); } catch {} }
 function discard() { return !(dirty || reviewDirty) || window.confirm("Descartar as alterações ainda não salvas?"); }
 function discardReview() { return !reviewDirty || window.confirm("Descartar os fatos ainda não salvos desta revisão?"); }
-function lock(value) { busy = value; for (const input of document.querySelectorAll("form input, form textarea, form button, #eligibility-panel button, #eligibility-panel select, #continue-review")) input.disabled = value; for (const id of ["save-job", "new-job", "more-jobs", "more-history", "reload-job"]) $(id).disabled = value || (id === "new-job" && !owner); $("compare-profile").disabled = value || !extractions.length || !comparisonProfiles.length; }
+function lock(value) { busy = value; for (const input of document.querySelectorAll("form input, form textarea, form button, #eligibility-panel button, #eligibility-panel select, #continue-review")) input.disabled = value; for (const id of ["save-job", "new-job", "more-jobs", "more-history", "reload-job"]) $(id).disabled = value || (id === "new-job" && !owner); $("compare-profile").disabled = value || !extractions.length || !comparisonProfiles.length; $("comparison-profile-version").disabled = value || !comparisonProfiles.length; }
 function localTime(value) {
   if (!value) return "";
   const d = new Date(value); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,16);
@@ -201,7 +201,15 @@ function renderFacts() {
   const run = selectedExtraction();
   if (run) for (const claim of run.claims) renderClaim($("extraction-facts"), claim);
 }
+function setComparisonProfileVersion(previousVersion = null) {
+  const profile = comparisonProfiles.find(item => item.id === $("comparison-profile").value);
+  const input = $("comparison-profile-version");
+  input.max = profile?.latest.version ?? "";
+  input.value = previousVersion ?? input.max;
+}
 function fillComparisonOptions() {
+  const version = $("comparison-profile-version");
+  const previousVersion = version.valueAsNumber >= 1 && version.valueAsNumber < Number(version.max) && Number.isInteger(version.valueAsNumber) ? version.value : null;
   const previousRun = $("extraction-select").value, previousProfile = $("comparison-profile").value;
   $("extraction-select").replaceChildren(); $("comparison-profile").replaceChildren();
   for (const [index, run] of extractions.entries()) {
@@ -215,6 +223,7 @@ function fillComparisonOptions() {
   }
   if (extractions.some(run => run.id === previousRun)) $("extraction-select").value = previousRun;
   if (comparisonProfiles.some(profile => profile.id === previousProfile)) $("comparison-profile").value = previousProfile;
+  setComparisonProfileVersion($("comparison-profile").value === previousProfile ? previousVersion : null);
   $("eligibility-options").hidden = !extractions.length;
   const notes = [];
   if (!extractions.length) notes.push("Ainda não há fatos salvos nesta captura. Use a etapa 1 acima para adicionar fatos e salvar sua revisão.");
@@ -257,16 +266,23 @@ for (const [id, kind] of [["more-extractions", "extractions"], ["more-comparison
   });
 }
 $("extraction-select").addEventListener("change", renderFacts);
-$("comparison-profile").addEventListener("change", () => $("eligibility-result").replaceChildren());
+$("comparison-profile").addEventListener("change", () => {
+  setComparisonProfileVersion();
+  $("eligibility-result").replaceChildren();
+});
+$("comparison-profile-version").addEventListener("input", () => $("eligibility-result").replaceChildren());
 $("compare-profile").addEventListener("click", async () => {
   const run = selectedExtraction(), profile = comparisonProfiles.find(item => item.id === $("comparison-profile").value);
-  if (busy || !run || !profile) return; lock(true); $("eligibility-result").replaceChildren();
+  const version = $("comparison-profile-version");
+  if (busy || !run || !profile || !version.reportValidity()) return;
+  const profileVersion = version.valueAsNumber;
+  lock(true); $("eligibility-result").replaceChildren();
   $("eligibility-status").textContent = "Comparando as versões selecionadas…";
   try {
-    const result = await api(`${extractionBase()}/${encodeURIComponent(run.id)}/comparison?profile_id=${encodeURIComponent(profile.id)}&profile_version=${profile.latest.version}`);
+    const result = await api(`${extractionBase()}/${encodeURIComponent(run.id)}/comparison?profile_id=${encodeURIComponent(profile.id)}&profile_version=${profileVersion}`);
     const panel = $("eligibility-result");
     const heading = document.createElement("h3"); heading.textContent = resultLabels[result.eligibility]; panel.append(heading);
-    paragraph(panel, `Captura ${comparisonCapture.version} · Fatos ${run.id} · ${profile.label}, versão ${profile.latest.version} · Regras ${result.rules_version}`, "hint");
+    paragraph(panel, `Captura ${comparisonCapture.version} · Fatos ${run.id} · ${profile.label}, versão ${profileVersion} · Regras ${result.rules_version}`, "hint");
     for (const path of result.pathways) {
       const section = document.createElement("section"); section.className = "pathway";
       const title = document.createElement("h4"); title.textContent = `${path.label}: ${resultLabels[path.eligibility]}`; section.append(title);

@@ -37,8 +37,9 @@
 <p id="eligibility-status" role="status" aria-live="polite"></p>
 <div id="eligibility-options" hidden>
 <div class="grid"><div><label for="extraction-select">Conjunto de fatos salvos</label><select id="extraction-select"></select><button id="more-extractions" type="button" class="text-button" hidden>Carregar mais conjuntos</button></div>
-<div><label for="comparison-profile">Perfil · última versão carregada</label><select id="comparison-profile"></select><button id="more-comparison-profiles" type="button" class="text-button" hidden>Carregar mais perfis</button></div></div>
+<div><label for="comparison-profile">Perfil</label><select id="comparison-profile"></select><button id="more-comparison-profiles" type="button" class="text-button" hidden>Carregar mais perfis</button></div></div>
 <p class="hint">Para obter versões mais recentes, use “Atualizar fatos e perfis” novamente. <a href="/profiles">Gerenciar perfis</a>.</p>
+<div class="form-section"><label for="comparison-profile-version">Versão do perfil</label><input id="comparison-profile-version" type="number" min="1" step="1" required disabled aria-describedby="comparison-profile-version-hint"><p id="comparison-profile-version-hint" class="hint">A última versão vem selecionada. Para usar uma versão anterior, informe o número salvo no histórico do perfil.</p></div>
 <details class="form-section"><summary>Consultar fatos e trechos de evidência</summary><div id="extraction-facts"></div></details>
 <div class="savebar"><button id="compare-profile" type="button">Comparar elegibilidade</button></div>
 </div><div id="eligibility-result" aria-live="polite"></div>
