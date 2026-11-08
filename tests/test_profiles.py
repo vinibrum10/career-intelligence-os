@@ -20,6 +20,7 @@ os.environ.setdefault("DATABASE_URL", TEST_URL or "postgresql+psycopg://unused:u
 from app.database import get_session
 from app.profiles.models import Base, Owner, Profile, ProfileVersion
 from app.profiles.router import router
+from app.profiles.interview import router as interview_router
 
 
 def sample():
@@ -65,6 +66,7 @@ class ProfilesTest(unittest.TestCase):
         cls.sessions = sessionmaker(cls.engine, expire_on_commit=False)
         cls.app = FastAPI()
         cls.app.include_router(router)
+        cls.app.include_router(interview_router)
 
         def session_override():
             with cls.sessions() as session:
@@ -89,6 +91,40 @@ class ProfilesTest(unittest.TestCase):
         response = self.client.post(f"/career/owners/{owner_id}/profiles", json=data or sample())
         self.assertEqual(response.status_code, 201, response.text)
         return response.json()
+
+
+    def test_interview_keeps_only_confirmed_facts_with_their_sources(self):
+        owner_id = self.owner()
+        other_owner_id = self.owner()
+        collection = f"/career/owners/{owner_id}/interviews"
+        interview_id = uuid4()
+        record_url = f"{collection}/{interview_id}"
+        payload = {
+            "answers": {
+                "experience": "I supported two internal applications.\nI wrote their runbooks.",
+                "projects": "I helped prototype an alerting dashboard.",
+            },
+            "facts": {"experience": "I wrote runbooks for two internal applications."},
+        }
+
+        invalid = {**payload, "facts": {"skills": "A fact without an answer."}}
+        self.assertEqual(self.client.put(record_url, json=invalid).status_code, 422)
+        self.assertEqual(self.client.get(collection).json(), [])
+
+        created = self.client.put(record_url, json=payload)
+        self.assertEqual(created.status_code, 201, created.text)
+        reopened = self.client.get(record_url).json()
+        self.assertEqual(reopened["facts"], payload["facts"])
+        self.assertEqual(reopened["answers"], payload["answers"])
+        self.assertNotIn("skills", reopened["answers"])
+        self.assertEqual(self.client.put(record_url, json=payload).json(), reopened)
+        self.assertEqual([row["id"] for row in self.client.get(collection).json()], [str(interview_id)])
+        revised = {**payload, "facts": {"experience": "Different wording."}}
+        self.assertEqual(self.client.put(record_url, json=revised).status_code, 409)
+        self.assertEqual(
+            self.client.get(f"/career/owners/{other_owner_id}/interviews/{interview_id}").status_code,
+            404,
+        )
 
     def test_update_preserves_history_and_rejects_stale_edits(self):
         owner = self.owner()

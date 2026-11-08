@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Entrevista profissional · Career Intelligence OS</title>
+  <link rel="stylesheet" href="/profiles/assets/styles.css">
+  <script src="/interview/assets/interview.js" type="module"></script>
+</head>
+<body class="interview-page">
+  <header class="topbar"><a class="brand" href="/profiles"><span class="mark">C</span> Career Intelligence OS</a><a href="/profiles">Meus perfis</a></header>
+  <main>
+    <div class="intro"><div><p class="eyebrow">TRAJETÓRIA PROFISSIONAL</p><h1>Conte o que você já fez</h1><p>Responda à entrevista, confira o rascunho e salve os fatos que você quer usar no seu perfil profissional.</p></div></div>
+    <p class="notice">As respostas e os fatos confirmados ficam no banco local. Você pode deixar perguntas em branco.</p>
+    <p id="interview-status" role="status" aria-live="polite"></p>
+    <fieldset id="interview-controls">
+      <section class="card editor">
+        <h2>Abra seu espaço</h2>
+        <form id="interview-connect">
+          <label for="interview-owner">Identificador do espaço</label>
+          <input id="interview-owner" required autocomplete="off">
+          <button type="submit" class="secondary">Abrir espaço</button>
+        </form>
+        <p class="hint">Use o mesmo identificador de <a href="/profiles">Meus perfis</a>.</p>
+      </section>
+      <section id="interview-workspace" hidden>
+        <section class="card editor form-section">
+          <h2 id="interview-heading">1. Responda à entrevista</h2>
+          <form id="interview-answers">
+            <div id="interview-questions"></div>
+            <button type="submit">Revisar respostas</button>
+          </form>
+          <form id="interview-review" hidden>
+            <p>Confira os fatos abaixo. Edite o texto ou desmarque os fatos que você não quer incluir.</p>
+            <div id="interview-draft"></div>
+            <div class="savebar">
+              <button type="button" id="interview-back" class="secondary">Voltar às perguntas</button>
+              <button type="submit">Confirmar e salvar perfil</button>
+            </div>
+          </form>
+        </section>
+        <section class="card editor form-section">
+          <h2>Perfis profissionais salvos</h2>
+          <p id="interview-empty">Nenhum perfil profissional salvo neste espaço.</p>
+          <ul id="interview-list"></ul>
+          <button id="interview-more" type="button" class="secondary" hidden>Carregar mais perfis</button>
+          <section id="interview-detail" hidden aria-live="polite">
+            <h3>Fatos confirmados e respostas originais</h3>
+            <div id="interview-sources"></div>
+          </section>
+        </section>
+      </section>
+    </fieldset>
+  </main>
+</body>
+</html>

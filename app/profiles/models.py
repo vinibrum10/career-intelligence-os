@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKeyConstraint, String, UniqueConstraint, Uuid, func
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, ForeignKeyConstraint, String, UniqueConstraint, Uuid, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -50,4 +50,17 @@ class ProfileVersion(Base):
     version: Mapped[int]
     schema_version: Mapped[int] = mapped_column(default=1)
     preferences_json: Mapped[dict] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class CareerInterview(Base):
+    __tablename__ = "career_interviews"
+    __table_args__ = {"schema": "career"}
+
+    id: Mapped[UUID] = mapped_column(Uuid, primary_key=True)
+    owner_id: Mapped[UUID] = mapped_column(
+        Uuid, ForeignKey("career.owners.id", ondelete="CASCADE"), index=True,
+    )
+    answers: Mapped[dict] = mapped_column(JSONB)
+    facts: Mapped[dict] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
