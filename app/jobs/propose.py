@@ -1,6 +1,7 @@
 """AI-assisted DRAFT of vacancy claims. The model reads only the vacancy text (never a profile); the code checks every
 excerpt against the saved text and nothing is stored. A person reviews the draft and saves it through the extractions POST."""
 import json
+import re
 from typing import Any
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Path
@@ -59,6 +60,11 @@ def ask_model(text):
         ], response_format="json")
     except OllamaCloudError as error:
         raise HTTPException(error.status_code, str(error)) from None
+    content = content.strip()
+    # Cloud replies can wrap the JSON in a single Markdown code block.
+    fenced = re.fullmatch(r"```(?:json)?[ \t]*\r?\n(.*?)\r?\n```", content, re.IGNORECASE | re.DOTALL)
+    if fenced:
+        content = fenced[1]
     try:
         claims = json.loads(content)["claims"]
     except (ValueError, KeyError, TypeError):
