@@ -47,6 +47,11 @@ O estágio `test` do Dockerfile inclui dependências de teste; o estágio final 
 
 ## Proteção do merge
 
-Depois da primeira execução, o administrador deve configurar um ruleset ou proteção da `main` exigindo os dois checks acima. A presença do workflow não ativa essa proteção automaticamente. Enquanto a proteção não for conferida, tratar o bloqueio de merge como pendente.
+A proteção da `main` está ativa no GitHub e exige os dois checks abaixo. A configuração foi conferida em 7 de novembro de 2026.
+
+- `Python, JavaScript and scripts`
+- `PostgreSQL, migrations and restart persistence`
+
+Para reconferir, abra **Settings → Branches** e veja a regra que protege a `main` e os dois checks obrigatórios. No PR, confira os resultados para o commit proposto. A versão homologada `3ba6328a779b101db63397499c3a76b587c267a0` passou nos dois jobs após o merge. [Configuração de branches](https://github.com/vinibrum10/career-intelligence-os/settings/branches) · [CI do commit homologado](https://github.com/vinibrum10/career-intelligence-os/actions/runs/42432855315)
 
 Este workflow tem apenas permissão de leitura do repositório e não usa segredos de produção. As actions estão fixadas por commit; as dependências Python auxiliares e a imagem pgvector ainda usam intervalos/tags, portanto não há garantia de reprodução binária entre datas diferentes.
