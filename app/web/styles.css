@@ -2,3 +2,8 @@
 .choices{border:0;margin:0;padding:0;min-width:0}.choices legend{font-size:13px;font-weight:600;margin-bottom:8px}.choices label{display:flex;align-items:center;gap:8px;font-weight:400}.choices input{width:17px;height:17px;min-height:0;accent-color:var(--accent)}
 .comparison-text{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:13px;line-height:1.6;border:1px solid var(--line);border-radius:7px;padding:14px;max-height:420px;overflow:auto}.comparison-text del{background:#fff0e9;color:#843c2d}.comparison-text ins{background:#e4f3e9;color:#20573e}.comparison-origin{white-space:pre-wrap;overflow-wrap:anywhere}
 .review-fact label{margin-top:14px}.review-fact .choices label{margin-top:8px}.review-fact .remove{margin-top:18px}.review-confirmation{display:flex;gap:10px;align-items:center;margin-top:20px}.review-confirmation input{width:18px;height:18px;min-height:0;flex-shrink:0}#eligibility-panel{overflow-wrap:anywhere}#eligibility-panel blockquote{margin:12px 16px}
+
+.interview-page fieldset { border: 0; margin: 0; padding: 0; min-inline-size: 0; }
+.interview-page textarea { margin-bottom: 16px; }
+.interview-page blockquote { white-space: pre-wrap; overflow-wrap: anywhere; margin-inline: 0; padding-inline-start: 12px; border-inline-start: 3px solid var(--line); }
+.interview-include input { width: auto; min-height: 0; margin: 0 6px 0 0; }

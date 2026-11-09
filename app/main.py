@@ -3,6 +3,7 @@ from agno.os import AgentOS
 from sqlalchemy import text
 from app.database import database_url, engine
 from app.profiles.router import router as profile_router
+from app.profiles.interview import router as interview_router
 from app.web import router as web_router
 from app.jobs.router import router as jobs_router
 from app.jobs.extractions import router as extractions_router
@@ -19,6 +20,7 @@ runtime = AgentOS(
 )
 app = runtime.get_app()
 app.include_router(profile_router)
+app.include_router(interview_router)
 app.include_router(web_router)
 app.include_router(jobs_router)
 app.include_router(extractions_router)

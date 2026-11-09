@@ -4,6 +4,8 @@
 
 GitHub Actions: [testes antes do pull request / pre-PR checks](docs/continuous-integration.md).
 
+[Entrevista profissional / Career interview](docs/career-interview.md)
+
 ## English
 
 ### Manual job captures

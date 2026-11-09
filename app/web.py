@@ -35,3 +35,13 @@ def jobs_script():
 @router.get("/jobs/assets/jobs-comparison.js")
 def jobs_comparison_script():
     return FileResponse(ASSETS / "jobs-comparison.js", media_type="text/javascript", headers={"Cache-Control": "no-store"})
+
+
+@router.get("/interview")
+def interview_page():
+    return FileResponse(ASSETS / "interview.html", headers={"Cache-Control": "no-store"})
+
+
+@router.get("/interview/assets/interview.js")
+def interview_script():
+    return FileResponse(ASSETS / "interview.js", media_type="text/javascript", headers={"Cache-Control": "no-store"})
