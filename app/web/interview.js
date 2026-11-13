@@ -19,6 +19,9 @@ let offset = 0;
 let draft;
 let draftId;
 let draftFields;
+let savedRecord;
+let correctionSource;
+let reviewSeed;
 let busy = false;
 
 function element(tag, text) {
@@ -71,10 +74,11 @@ async function run(action) {
 function showQuestions() {
   questions.hidden = false;
   review.hidden = true;
-  byId("interview-heading").textContent = "1. Responda à entrevista";
+  byId("interview-heading").textContent = correctionSource ? "1. Corrija suas respostas" : "1. Responda à entrevista";
 }
 
 function showSaved(record) {
+  savedRecord = record;
   const sources = byId("interview-sources");
   sources.replaceChildren();
   for (const [topic, [title]] of Object.entries(topics)) {
@@ -90,6 +94,37 @@ function showSaved(record) {
   }
   detail.hidden = false;
 }
+
+function resetCorrection() {
+  correctionSource = null;
+  reviewSeed = null;
+  draft = null;
+  questions.reset();
+  byId("interview-correction-notice").hidden = true;
+  byId("interview-cancel-correction").hidden = true;
+  showQuestions();
+}
+
+byId("interview-correct").addEventListener("click", () => {
+  if (!savedRecord) return;
+  if (correctionSource || draft || Object.values(answerFields).some((field) => field.value.trim())) {
+    message("Conclua a entrevista em andamento ou cancele a correção antes de corrigir outro perfil.");
+    return;
+  }
+  correctionSource = savedRecord;
+  reviewSeed = null;
+  for (const [topic, field] of Object.entries(answerFields)) field.value = savedRecord.answers[topic] || "";
+  byId("interview-correction-notice").hidden = false;
+  byId("interview-cancel-correction").hidden = false;
+  showQuestions();
+  answerFields.experience.focus();
+  message("Perfil carregado para correção. O registro anterior será preservado.");
+});
+
+byId("interview-cancel-correction").addEventListener("click", () => {
+  resetCorrection();
+  message("Correção cancelada. O perfil salvo permanece igual.");
+});
 
 function addToList(record, prepend = false) {
   const item = element("li");
@@ -120,18 +155,20 @@ byId("interview-connect").addEventListener("submit", (event) => {
     message("Informe um identificador de espaço válido.");
     return;
   }
-  if (endpoint && (draft || Object.values(answerFields).some((field) => field.value.trim()))) {
+  if (endpoint && (correctionSource || draft || Object.values(answerFields).some((field) => field.value.trim()))) {
     message("Salve a entrevista em andamento ou recarregue a página para trocar de espaço.");
     return;
   }
   run(async () => {
     const nextEndpoint = "/career/owners/" + owner + "/interviews";
     const records = await request(nextEndpoint + "?limit=" + pageSize);
+    resetCorrection();
     endpoint = nextEndpoint;
     ownerField.value = owner;
     list.replaceChildren();
     offset = 0;
     detail.hidden = true;
+    savedRecord = null;
     showPage(records);
     byId("interview-workspace").hidden = false;
     message("Espaço aberto.");
@@ -162,11 +199,14 @@ questions.addEventListener("submit", (event) => {
     section.className = "form-section";
     const include = element("input");
     include.type = "checkbox";
-    include.checked = true;
+    const seed = reviewSeed || correctionSource;
+    include.checked = !seed || !(topic in seed.answers) || topic in seed.facts;
     const includeLabel = element("label");
     includeLabel.className = "interview-include";
     includeLabel.append(include, " Incluir " + title.toLowerCase());
-    const { label, field } = labeledTextArea("fact-" + topic, "Fato sobre " + title.toLowerCase(), answer);
+    const fact = seed && seed.answers[topic] === answer && topic in seed.facts ? seed.facts[topic] : answer;
+    const { label, field } = labeledTextArea("fact-" + topic, "Fato sobre " + title.toLowerCase(), fact);
+    field.disabled = !include.checked;
     include.addEventListener("change", () => { field.disabled = !include.checked; });
     section.append(element("h3", title), element("p", "Resposta original"), element("blockquote", answer), includeLabel, label, field);
     container.append(section);
@@ -179,6 +219,10 @@ questions.addEventListener("submit", (event) => {
 });
 
 byId("interview-back").addEventListener("click", () => {
+  reviewSeed = {
+    answers: draft,
+    facts: Object.fromEntries(Object.entries(draftFields).filter(([, entry]) => entry.include.checked).map(([topic, entry]) => [topic, entry.field.value])),
+  };
   draft = null;
   showQuestions();
   message("Respostas disponíveis para edição.");
@@ -203,9 +247,7 @@ review.addEventListener("submit", (event) => {
     offset += 1;
     byId("interview-empty").hidden = true;
     showSaved(record);
-    questions.reset();
-    draft = null;
-    showQuestions();
+    resetCorrection();
     message("Perfil profissional salvo. Os fatos confirmados e suas fontes estão disponíveis abaixo.");
   });
 });
