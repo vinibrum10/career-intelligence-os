@@ -6,4 +6,6 @@ Abra **Entrevista profissional** na página de perfis e informe o identificador 
 
 Na lista de perfis profissionais salvos, abra o registro para ver os fatos e as respostas que os sustentam. Uma nova entrevista cria um registro independente. As preferências de busca e a comparação de elegibilidade da V1 usam seus próprios registros.
 
+Para corrigir um perfil salvo, abra-o e clique em **Corrigir este perfil**. As respostas são preenchidas para edição. Na revisão, os fatos confirmados anteriormente são mantidos quando a resposta não mudou; uma resposta alterada gera uma nova sugestão para conferência. Itens antes excluídos continuam desmarcados. Confirme os fatos que deseja salvar. A correção cria um novo registro com outra data e horário, preservando o anterior. **Cancelar correção** descarta somente as alterações ainda não salvas. Termine a entrevista em andamento antes de iniciar outra correção.
+
 A entrevista não chama serviços externos. Currículos bilíngues, busca de vagas e análise de aderência estão fora desta entrega. Execute a migração `0004_career_interviews` antes de usar a tela em um banco existente.

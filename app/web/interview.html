@@ -26,6 +26,7 @@
       <section id="interview-workspace" hidden>
         <section class="card editor form-section">
           <h2 id="interview-heading">1. Responda à entrevista</h2>
+          <p id="interview-correction-notice" hidden>Corrija as respostas e revise os fatos antes de salvar. A correção cria um novo registro; o perfil anterior continua disponível.</p>
           <form id="interview-answers">
             <div id="interview-questions"></div>
             <button type="submit">Revisar respostas</button>
@@ -38,6 +39,7 @@
               <button type="submit">Confirmar e salvar perfil</button>
             </div>
           </form>
+          <button id="interview-cancel-correction" type="button" class="secondary" hidden>Cancelar correção</button>
         </section>
         <section class="card editor form-section">
           <h2>Perfis profissionais salvos</h2>
@@ -46,6 +48,7 @@
           <button id="interview-more" type="button" class="secondary" hidden>Carregar mais perfis</button>
           <section id="interview-detail" hidden aria-live="polite">
             <h3>Fatos confirmados e respostas originais</h3>
+            <button id="interview-correct" type="button" class="secondary">Corrigir este perfil</button>
             <div id="interview-sources"></div>
           </section>
         </section>
