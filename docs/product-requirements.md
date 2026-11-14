@@ -101,6 +101,10 @@ Before implementation, decide the profile entry interface, model/provider if nee
 
 ## Português
 
+### Currículo em português (CIO-10)
+
+Em 13/11/2026, após o aceite da entrevista e de sua correção em produção no CIO-9, Vinicius escolheu gerar o currículo em português com IA e autorizou enviar somente os fatos profissionais confirmados ao Ollama Cloud. O rascunho usa o registro exato selecionado, apresenta fontes para revisão e não altera o perfil. Nome, contato e complementos do documento ficam locais. A exportação para texto ou HTML de impressão exige confirmação humana, invalidada por alterações posteriores. Não há migração nem salvamento de currículos no banco nesta entrega. Consulte [o fluxo e os limites](resume-drafts.md); as evidências de liberação e aceite ficam no CIO-10. Inglês e adaptação a vagas ficam para ciclos posteriores.
+
 ### 1. Objetivo e estado atual
 
 Ajudar pessoas a comparar oportunidades de carreira usando evidências rastreáveis e suas próprias preferências. O produto deve atender a diferentes perfis, países, formas de contratação e interesses profissionais. Nenhum cargo, local, moeda ou preferência pessoal pode ser fixado como padrão universal no código.

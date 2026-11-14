@@ -79,6 +79,7 @@ function showQuestions() {
 
 function showSaved(record) {
   savedRecord = record;
+  byId("interview-resume").href = "/resume?owner=" + encodeURIComponent(endpoint.split("/")[3]) + "&interview=" + encodeURIComponent(record.id);
   const sources = byId("interview-sources");
   sources.replaceChildren();
   for (const [topic, [title]] of Object.entries(topics)) {

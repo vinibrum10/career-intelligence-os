@@ -1,6 +1,6 @@
 # Ollama Cloud — conexão do aplicativo
 
-Por solicitação de Vinicius em 29/10/2026, esta integração substitui o transporte local de rascunhos por acesso direto ao Ollama Cloud. A aplicação e o banco continuam locais; somente o texto da vaga é enviado ao provedor quando o usuário pede um rascunho. Perfis não são enviados. Revisão humana e salvamento explícito continuam obrigatórios.
+Por solicitação de Vinicius em 29/10/2026, esta integração substitui o transporte local de rascunhos por acesso direto ao Ollama Cloud. A aplicação e o banco continuam locais. No fluxo de vagas, somente o texto da vaga é enviado; perfis não são enviados nesse fluxo. O [currículo em português](resume-drafts.md), autorizado em 13/11/2026 no CIO-10, tem um fluxo próprio de consentimento para enviar somente os fatos profissionais confirmados. Revisão humana continua obrigatória.
 
 ## Código e configuração
 

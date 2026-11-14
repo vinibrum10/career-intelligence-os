@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Currículo em português · Career Intelligence OS</title>
+  <link rel="stylesheet" href="/profiles/assets/styles.css">
+  <script src="/resume/assets/resume.js" type="module"></script>
+  <style>
+    .resume-page fieldset{border:0;padding:0;margin:0;min-inline-size:0}
+    .resume-page textarea{margin-bottom:16px}
+    .resume-page blockquote{white-space:pre-wrap;overflow-wrap:anywhere;border-inline-start:3px solid var(--line);padding-inline-start:12px;margin-inline:0}
+    .resume-page .resume-check{display:flex;gap:10px;align-items:flex-start;margin-block:20px}
+    .resume-check input{width:18px;min-height:18px;flex-shrink:0;margin-top:3px}
+    .resume-page .card{margin-bottom:24px}
+    .resume-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+    .resume-page details{margin-bottom:24px}
+  </style>
+</head>
+<body class="resume-page">
+  <header class="topbar"><a class="brand" href="/profiles"><span class="mark">C</span> Career Intelligence OS</a><a href="/interview">Entrevista profissional</a></header>
+  <main>
+    <div class="intro"><div><p class="eyebrow">SEU PRÓXIMO PASSO</p><h1>Seu currículo, com suas evidências</h1><p>Gere um rascunho em português, confira as fontes e dê a palavra final.</p></div></div>
+    <p id="resume-status" role="status" aria-live="polite">Carregando o perfil selecionado…</p>
+    <section id="resume-source" class="card editor" hidden>
+      <h2>1. Confira o que será enviado à IA</h2>
+      <p id="resume-source-date"></p>
+      <div id="resume-facts"></div>
+      <p>Somente os fatos confirmados acima serão enviados ao <strong>Ollama Cloud</strong>. As respostas excluídas, preferências de busca, identificadores e os dados de contato preenchidos abaixo ficam fora desse envio.</p>
+      <fieldset id="resume-generation">
+        <label class="resume-check"><input id="resume-consent" type="checkbox">Autorizo enviar estes fatos confirmados ao Ollama Cloud para gerar o currículo.</label>
+        <button id="resume-generate" type="button" disabled>Gerar rascunho em português</button>
+      </fieldset>
+    </section>
+    <section id="resume-review" class="card editor" hidden>
+      <h2>2. Revise o currículo</h2>
+      <p class="notice">A IA pode cometer erros. Confira cada trecho contra suas fontes e corrija o que for necessário. O perfil salvo permanece preservado.</p>
+      <p>Este rascunho fica apenas nesta página. Baixe o documento revisado antes de sair ou atualizar a página.</p>
+      <div id="resume-missing"></div>
+      <form id="resume-form">
+        <h3>Identificação</h3>
+        <p>Os campos preenchidos aqui ficam locais e entram somente no arquivo que você baixar.</p>
+        <label for="resume-name">Nome no currículo</label>
+        <input id="resume-name" maxlength="200" autocomplete="name" required>
+        <label for="resume-contact">Contato e localização (opcional)</label>
+        <input id="resume-contact" maxlength="500" placeholder="E-mail, telefone, cidade e links que desejar incluir">
+        <div id="resume-blocks"></div>
+        <h3>Informações para completar</h3>
+        <p>Confira os períodos das experiências, a formação e os idiomas. Inclua abaixo somente informações verdadeiras que queira acrescentar ao documento.</p>
+        <label for="resume-additions">Complementos revisados (opcional)</label>
+        <textarea id="resume-additions" rows="5" maxlength="5000" placeholder="Ex.: períodos de atuação, formação e idiomas com os níveis que você confirmou."></textarea>
+        <label class="resume-check"><input id="resume-approved" type="checkbox">Revisei o currículo e confirmo que o texto corresponde à minha trajetória.</label>
+        <p id="resume-export-help">Preencha seu nome e confirme a revisão para baixar. Uma alteração no texto exige uma nova confirmação.</p>
+        <div class="resume-actions">
+          <button id="resume-download-text" type="button" disabled>Baixar texto</button>
+          <button id="resume-download-print" type="button" class="secondary" disabled>Baixar versão para impressão</button>
+        </div>
+        <p>Para gerar um PDF, abra a versão para impressão e use <strong>Imprimir → Salvar como PDF</strong>.</p>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

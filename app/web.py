@@ -45,3 +45,18 @@ def interview_page():
 @router.get("/interview/assets/interview.js")
 def interview_script():
     return FileResponse(ASSETS / "interview.js", media_type="text/javascript", headers={"Cache-Control": "no-store"})
+
+
+@router.get('/resume')
+def resume_page():
+    return FileResponse(ASSETS / 'resume.html', headers={'Cache-Control': 'no-store'})
+
+
+@router.get('/resume/assets/resume.js')
+def resume_script():
+    return FileResponse(ASSETS / 'resume.js', media_type='text/javascript', headers={'Cache-Control': 'no-store'})
+
+
+@router.get('/resume/assets/resume-export.js')
+def resume_export_script():
+    return FileResponse(ASSETS / 'resume-export.js', media_type='text/javascript', headers={'Cache-Control': 'no-store'})
