@@ -6,6 +6,8 @@ GitHub Actions: [testes antes do pull request / pre-PR checks](docs/continuous-i
 
 [Entrevista profissional / Career interview](docs/career-interview.md)
 
+[Currículo em português com IA / Portuguese resume draft](docs/resume-drafts.md) — revisão com fontes e exportação local; consulte os requisitos de configuração e as evidências no CIO-10.
+
 ## English
 
 ### Manual job captures

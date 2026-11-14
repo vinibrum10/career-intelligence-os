@@ -1,8 +1,8 @@
 # Career Intelligence OS — Documento de foco e direção
 
-**Versão:** 0.2
-**Data:** 7 de novembro de 2026
-**Status:** fluxo da V1 aceito em homologação. Documento de foco e próximas entregas em revisão.
+**Versão:** 0.3
+**Data:** 13 de novembro de 2026
+**Status:** V1, entrevista e correção aceitas em produção. Currículo em português implementado e avaliado com IA real; liberação e aceite registrados no CIO-10.
 
 ## 1. Para que este documento existe
 
@@ -26,7 +26,11 @@ O produto deve aceitar diferentes perfis e caminhos profissionais. Nenhum cargo,
 
 ## 4. Foco imediato
 
-**Concluir e validar o fluxo local: perfil → vaga salva → fatos revisados → comparação de elegibilidade com justificativas e evidências.**
+**Entregar o currículo em português com IA a partir dos fatos profissionais confirmados, com fontes, revisão humana e exportação local.**
+
+Vinicius escolheu esta entrega e autorizou o envio apenas dos fatos confirmados ao Ollama Cloud em 13/11/2026. O escopo e os limites estão no [guia do currículo](docs/resume-drafts.md) e no [CIO-10](https://vinibrum10.atlassian.net/browse/CIO-10). Inglês e adaptação a uma vaga ficam para outro ciclo. A implementação e a avaliação com IA real estão concluídas; o histórico da liberação e a conferência final de uso ficam no cartão do projeto.
+
+O fluxo anterior da V1 já foi validado e continua disponível:
 
 Ao final desta etapa, a pessoa deve conseguir responder:
 
@@ -37,9 +41,9 @@ Ao final desta etapa, a pessoa deve conseguir responder:
 
 Elegibilidade significa compatibilidade com os critérios efetivamente avaliados pelo sistema. Aderência técnica, autorização legal para trabalhar e probabilidade de contratação exigem outras evidências e não fazem parte dessa conclusão.
 
-## 5. Situação da V1 em homologação
+## 5. Histórico da V1 e estado de produção
 
-A homologação usa o commit `3ba6328a779b101db63397499c3a76b587c267a0`. A aplicação e o banco PostgreSQL com pgvector rodam localmente em Docker, em ambiente separado da produção.
+A V1 foi homologada e liberada inicialmente no commit `3ba6328a779b101db63397499c3a76b587c267a0` ([CIO-4](https://vinibrum10.atlassian.net/browse/CIO-4)). Em 13/11/2026, a entrevista e a correção foram aceitas em produção no commit `038dd5b782d38f37d4c42274607bef2ceb5ec38f` ([CIO-9](https://vinibrum10.atlassian.net/browse/CIO-9)). Aplicação e banco continuam locais em Docker, com homologação e produção isoladas. A tabela abaixo registra as evidências históricas da V1.
 
 | Parte | Situação verificada |
 | --- | --- |
@@ -48,7 +52,7 @@ A homologação usa o commit `3ba6328a779b101db63397499c3a76b587c267a0`. A aplic
 | Rascunho opcional | Vinicius aceitou o piloto do Ollama Cloud em homologação. Quatro vagas fictícias geraram os 20 fatos esperados com evidência. A adoção com vagas reais depende de avaliar uma amostra rotulada e autorizada. [CIO-3](https://vinibrum10.atlassian.net/browse/CIO-3) |
 | Verificações | Os dois checks obrigatórios da main passaram no commit homologado. [Execução da CI](https://github.com/vinibrum10/career-intelligence-os/actions/runs/42432855315) |
 
-## 6. Escopo da etapa atual
+## 6. Escopo preservado da V1
 
 1. Criar ou selecionar um perfil e configurar suas restrições e preferências.
 2. Salvar manualmente uma descrição de vaga, com origem quando conhecida.
@@ -85,7 +89,7 @@ O fluxo manual funciona com a IA indisponível. Quando um rascunho é solicitado
 
 Esses itens podem ser avaliados depois, com objetivo e critérios próprios. A existência de Agno e pgvector na infraestrutura não torna seu uso uma prioridade por si só.
 
-## 9. Critérios para concluir a etapa atual
+## 9. Critérios de conclusão da V1
 
 - [x] O fluxo completo funciona na interface, usando dados fictícios de teste.
 - [x] Dois perfis com restrições diferentes produzem resultados coerentes para a mesma vaga, com justificativas.
@@ -96,8 +100,8 @@ Esses itens podem ser avaliados depois, com objetivo e critérios próprios. A e
 - [x] Preferências opcionais não eliminam uma vaga e caminhos alternativos são respeitados.
 - [x] A indisponibilidade do Ollama permite continuar pelo cadastro manual de fatos.
 - [x] Os registros persistem após reiniciar a aplicação e o banco, sem misturar espaços de proprietários diferentes.
-- [ ] As verificações pertinentes passam e a documentação corresponde ao comportamento entregue.
-- [ ] As alterações são revisadas e o resultado é apresentado a Vinicius para validação de uso.
+- [x] As verificações pertinentes passam e a documentação corresponde ao comportamento entregue.
+- [x] As alterações são revisadas e o resultado é apresentado a Vinicius para validação de uso.
 
 ## 10. Próximos passos da V1
 
@@ -105,10 +109,12 @@ Esses itens podem ser avaliados depois, com objetivo e critérios próprios. A e
 | --- | --- |
 | Homologar o fluxo manual e a escolha de versões | Aceito por Vinicius no [CIO-2](https://vinibrum10.atlassian.net/browse/CIO-2). |
 | Avaliar os rascunhos com dados fictícios | Piloto aceito por Vinicius no [CIO-3](https://vinibrum10.atlassian.net/browse/CIO-3). |
-| Alinhar a documentação à entrega | Em revisão no [CIO-6](https://vinibrum10.atlassian.net/browse/CIO-6). |
-| Encerrar a V1 | Registrar a decisão de liberação local e escolher ou adiar a próxima entrega no [CIO-4](https://vinibrum10.atlassian.net/browse/CIO-4). |
+| Alinhar a documentação à entrega | Concluído no [CIO-6](https://vinibrum10.atlassian.net/browse/CIO-6). |
+| Encerrar a V1 | Concluído no [CIO-4](https://vinibrum10.atlassian.net/browse/CIO-4), com liberação local. |
+| Entrevista e correção do perfil profissional | Liberadas e aceitas em produção nos [CIO-8](https://vinibrum10.atlassian.net/browse/CIO-8) e [CIO-9](https://vinibrum10.atlassian.net/browse/CIO-9). |
+| Currículo em português com IA | Implementado, com avaliação real aprovada. Liberação e aceite de uso acompanhados no [CIO-10](https://vinibrum10.atlassian.net/browse/CIO-10). |
 
-Possíveis evoluções incluem análise de habilidades recorrentes na amostra, registro de experiência e habilidades pessoais, avaliação de lacunas e histórico de comparações. A prioridade entre elas permanece aberta.
+As demais evoluções possíveis incluem análise de habilidades recorrentes na amostra, avaliação de lacunas e histórico de comparações. A prioridade entre elas permanece aberta.
 
 ## 11. Regra para evitar perda de foco
 
@@ -145,3 +151,4 @@ A aprovação da direção mais ampla e a escolha de próximas entregas continua
 | --- | --- | --- |
 | 28/10/2026 | Criação deste documento com foco proposto na conclusão e validação do fluxo local de comparação. | Proposta inicial. |
 | 07/11/2026 | Aceite do fluxo manual em homologação e do piloto do Ollama Cloud com vagas fictícias. | Fluxo manual validado para a V1. Avaliação com vagas reais pendente antes da adoção da IA. |
+| 13/11/2026 | Aceite da entrevista e de sua correção em produção; escolha do currículo em português com IA e autorização do envio somente dos fatos profissionais confirmados ao Ollama Cloud. | CIO-9 concluído; CIO-10 em desenvolvimento, com revisão obrigatória antes da exportação. |
